@@ -1,6 +1,8 @@
-## Node that holds music segment.
+@tool
 class_name MusicNode
 extends Resource
+## Node that holds music segment.
+# End of class document.
 
 ## The id of the node.
 ## Could be re-assigned for ID reusing purpose.
@@ -20,15 +22,32 @@ extends Resource
 ## Not required in `_init`.
 @export var ui_position: Vector2
 
+## Slot information for the node.
+@export var slot_info: Array[GraphNodeSlotInfo]
+
 func _init(
         id: int,
         name: String,
         music_segment: AudioStream = null,
-        after_play_decision: MusicAfterPlayDecision = null
+        after_play_decision: MusicAfterPlayDecision = null,
+        ui_position: Vector2 = Vector2.ZERO,
+        slot_info: Array[GraphNodeSlotInfo] = []
 ) -> void:
     self.id = id
     self.name = name
     self.music_segment = music_segment
     self.after_play_decision = after_play_decision
+    self.ui_position = ui_position
+    self.slot_info = slot_info
+    self.slot_info.push_front(GraphNodeSlotInfo.createPathInSlot())
 
     self.resource_name = str("MusicNode ", name if name.length() > 0 else str("#", id))
+
+func _to_string() -> String:
+    return str(
+        "MusicNode@{",
+        "id: ", self.id, ", ",
+        "name: \"", self.name, "\", ",
+        "slot_info: \"", self.slot_info, "\", ",
+        "}"
+    )

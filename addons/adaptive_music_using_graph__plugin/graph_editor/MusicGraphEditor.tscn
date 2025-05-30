@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dg4wxo8whwmri"]
 
-[ext_resource type="Script" uid="uid://420ydeq2eojr" path="res://addons/adaptive_music_using_graph__plugin/editor/MusicGraphEditor.gd" id="1_sc1d8"]
+[ext_resource type="Script" uid="uid://420ydeq2eojr" path="res://addons/adaptive_music_using_graph__plugin/graph_editor/MusicGraphEditor.gd" id="1_sc1d8"]
 
 [node name="AdaptiveMusicGraphEditor" type="GraphEdit"]
 anchors_preset = 15

@@ -1,6 +1,7 @@
-## (enum) The next-node-choosing codition.
 class_name MusicCondition
 extends Resource
+## (enum) The next-node-choosing codition.
+# End of class document.
 
 enum
 {

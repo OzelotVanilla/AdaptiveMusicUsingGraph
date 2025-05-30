@@ -1,6 +1,8 @@
-## Edge with evaluate expression.
+@tool
 class_name MusicEdge
 extends Resource
+## Edge with evaluate expression.
+# End of class document.
 
 ## The id of the edge.
 ## Could be re-assigned for ID reusing purpose.
