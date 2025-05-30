@@ -4,6 +4,7 @@ extends MarginContainer
 
 @onready var graph_editor: MusicGraphEditor = $VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor
 @onready var top_button_bar: TopButtonBar = $VBoxContainer/MarginContainer/TopButtonBar
+@onready var search_bar: LineEdit = $VBoxContainer/HSplit/FileTabAndParamList/OpeningFileContainer/Search
 
 func _ready() -> void: self.__onReady__()
 

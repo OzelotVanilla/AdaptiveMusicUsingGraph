@@ -1,10 +1,14 @@
-## Sparse graph, containing music node and edge.
 class_name MusicGraph
 extends Resource
+## Sparse graph, containing music node and edge.
+# End of class document.
 
+
+## Array saving reference to node, sorted by node's id, from small to big.
 @export var node_array: Array[MusicNode]: get = getAllNodes
 var node_dict: Dictionary[int, MusicNode] = {}
 
+## Array saving reference to edge, sorted by edge's id, from small to big.
 @export var edge_array: Array[MusicEdge]: get = getAllEdges
 var edge_dict: Dictionary[int, MusicEdge] = {}
 

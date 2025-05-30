@@ -98,18 +98,20 @@ func clear():
 
 ## Called after graph_editor is init-ed.
 func onSelectModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.select
 
 ## Called after graph_editor is init-ed.
 func onMoveModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.move
+
 
 ## Called after graph_editor is init-ed.
 func onConnectModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.connect
+
 
 func onSingleNodeFocusingModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.single_node_focusing
 
 ## Called after graph_editor is init-ed.
 func onAddNodePress():
