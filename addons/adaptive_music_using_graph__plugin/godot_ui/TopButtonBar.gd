@@ -2,13 +2,34 @@
 class_name TopButtonBar
 extends HBoxContainer
 
-# template: {"name": "", "toggle_mode": false, "is_selected": false,
+# template for buttons and separator:
+#           {"name": "", "toggle_mode": false, "is_selected": false,
 #            "on_press": "",
 #            "icon_name": "", "shortcut": "", "group": "",
 #            "description": ""},
-#           {"node_type": "VSeparator"}
+#           {"node_type": "VSeparator"},
 ## The buttons config of the top button bar.
-var top_buttons_config: Array[Dictionary] = [
+@onready var top_buttons_config: Array[Dictionary]: get = getTopButtonsConfig
+
+func getTopButtonsConfig():
+    return \
+[
+    {"node_type":"MenuButtton",
+     "button_name": "File",
+     "items": [
+         {"item_name": "New Adaptive Music Graph...", "item_icon": "CanvasLayer", "shortcut": "Command/Ctrl+N",
+          "on_press": "onCreatingNewFileAction"},
+         {"node_type": "HSeparator"},
+         {"item_name": "Save", "item_icon": "Save", "shortcut": "Command/Ctrl+S",
+          "on_press": "onSavingAction"},
+         {"node_type": "HSeparator"},
+         {"item_name": "Close", "item_icon": "Close", "shortcut": "Command/Ctrl+W",
+          "on_press": "onClosingAction"},
+      ],
+     },
+
+    {"node_type": "VSeparator"},
+
     {"name": "Select Mode", "toggle_mode": true, "is_selected": true,
      "on_press": "onSelectModePress",
      "icon_name": "ToolSelect", "shortcut": "q", "group": "operation_mode",
@@ -38,6 +59,9 @@ var top_buttons_config: Array[Dictionary] = [
 ]
 
 var graph_editor: MusicGraphEditor
+## Map popup item (by id) to callback (StringName of method in MusicGraphEditor)[br]
+## Since Godot use `id_pressed` for the popup, so need to store these info.
+var menu_button_callback_dict: Dictionary[int, StringName]
 
 ## This will be called only if the music graph editor is ready.
 func initButtons(graph_editor: MusicGraphEditor):
@@ -52,10 +76,15 @@ func initButtons(graph_editor: MusicGraphEditor):
 
     for config in self.top_buttons_config:
         # Add separator or something else than a button.
-        if config.has("node_type"): match config["node_type"]:
-            "VSeparator":
-                self.add_child(VSeparator.new())
-                continue
+        if config.has("node_type"):
+            match config["node_type"]:
+                "VSeparator":
+                    self.add_child(VSeparator.new())
+
+                "MenuButtton":
+                    self.addMenuButton(config)
+
+            continue
 
         # Or, add button.
         var button = Button.new()
@@ -65,8 +94,13 @@ func initButtons(graph_editor: MusicGraphEditor):
 
         button.toggle_mode = config["toggle_mode"]
         button.button_pressed = config["is_selected"]
-        button.icon = EditorInterface.get_editor_theme().get_icon(config["icon_name"], "EditorIcons")
+        button.icon = util.getEditorIcon(config["icon_name"])
         button.pressed.connect(self[config["on_press"]])
+
+        # For detecting if it is for *editor*, or for *menu*.
+        button.name = str("editor_button__", config["name"])
+        # And at first, no file tab is opened, so they should be disabled.
+        button.disabled = true
 
         # Add shortcut
         if config.has("shortcut"):
@@ -92,25 +126,94 @@ func initButtons(graph_editor: MusicGraphEditor):
 
         self.add_child(button)
 
+## template:
+##     {"node_type":"MenuButtton",
+##      "button_name": "File",
+##      "items": [
+##          {"item_name": "Save", "item_icon": "Save", "shortcut": "Command/Ctrl+S",
+##           "on_press": "onSaveAction"},
+##      ],
+##     }
+func addMenuButton(config: Dictionary):
+    var menu_button := MenuButton.new()
+    var popup := menu_button.get_popup()
+    popup.clear()
+
+    menu_button.text = config["button_name"]
+
+    # For detecting if it is for *editor*, or for *menu*.
+    menu_button.name = str("menu_button__", config["button_name"])
+
+    # Add the item in popup menu.
+    var id_counter = 1
+    for item in config["items"]:
+        if item.has("node_type"):
+            match item["node_type"]:
+                "HSeparator": popup.add_separator()
+
+            continue
+
+        var item_id = id_counter
+        id_counter += 1
+        popup.add_icon_item(
+            util.getEditorIcon(item["item_icon"]),
+            item["item_name"],
+            item_id
+        )
+        var item_index = popup.get_item_index(item_id)
+
+        # Set shortcut.
+        popup.set_item_shortcut(
+            item_index,
+            util.getKeyPressShortcutFromText(item["shortcut"]),
+            true
+        )
+        self.menu_button_callback_dict.set(item_id, item["on_press"])
+
+    # Use separate member variable (dict) and method to handle on_press callback.
+    popup.id_pressed.connect(self.handleMenuButtonCallback)
+
+    self.add_child(menu_button)
+
+func handleMenuButtonCallback(id: int):
+    var method_name = self.menu_button_callback_dict.get(id)
+    if method_name != null:
+        self.graph_editor.call_deferred(method_name)
+
 func clear():
     for c in self.get_children():
         self.remove_child(c)
 
+var cache__editor_button_enability: bool = false
+func setEnabilityOfEditorButtons(value: bool):
+    if value == self.cache__editor_button_enability: return
+    self.cache__editor_button_enability = value
+
+    for child in self.get_children(): if child is Button:
+        if child.name.begins_with("editor_button__") and child.name not in self.button_enabled_only_when_multiple_node_selected:
+            child.disabled = not value
+
 ## Called after graph_editor is init-ed.
 func onSelectModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.select
 
 ## Called after graph_editor is init-ed.
 func onMoveModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.move
 
 ## Called after graph_editor is init-ed.
 func onConnectModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.connect
 
 func onSingleNodeFocusingModePress():
-    pass
+    self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.single_node_focusing
 
 ## Called after graph_editor is init-ed.
 func onAddNodePress():
-    pass
+    self.graph_editor.addNode()
+
+func onFileTabListChange(info: FileTabListChangeInfo) -> void:
+    # If there is no file opened, disable the buttons.
+    self.setEnabilityOfEditorButtons(
+        info.selected_files.size() == 1
+    )
