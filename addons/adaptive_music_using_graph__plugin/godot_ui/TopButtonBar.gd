@@ -2,13 +2,26 @@
 class_name TopButtonBar
 extends HBoxContainer
 
-# template: {"name": "", "toggle_mode": false, "is_selected": false,
+# template for buttons and separator:
+#           {"name": "", "toggle_mode": false, "is_selected": false,
 #            "on_press": "",
 #            "icon_name": "", "shortcut": "", "group": "",
 #            "description": ""},
-#           {"node_type": "VSeparator"}
+#           {"node_type": "VSeparator"},
 ## The buttons config of the top button bar.
-var top_buttons_config: Array[Dictionary] = [
+@onready var top_buttons_config: Array[Dictionary]: get = getTopButtonsConfig
+
+func getTopButtonsConfig():
+    return \
+[
+    {"node_type":"MenuButtton",
+     "button_name": "File",
+     "items": [
+         {"item_name": "Save", "item_icon": "Save", "shortcut": "Command/Ctrl+S",
+          "on_press": "onSavingAction"},
+      ],
+     },
+
     {"name": "Select Mode", "toggle_mode": true, "is_selected": true,
      "on_press": "onSelectModePress",
      "icon_name": "ToolSelect", "shortcut": "q", "group": "operation_mode",
@@ -57,6 +70,10 @@ func initButtons(graph_editor: MusicGraphEditor):
                 self.add_child(VSeparator.new())
                 continue
 
+            "MenuButtton":
+                self.addMenuButton(config)
+                continue
+
         # Or, add button.
         var button = Button.new()
         button.theme_type_variation = "FlatButton"
@@ -65,7 +82,7 @@ func initButtons(graph_editor: MusicGraphEditor):
 
         button.toggle_mode = config["toggle_mode"]
         button.button_pressed = config["is_selected"]
-        button.icon = EditorInterface.get_editor_theme().get_icon(config["icon_name"], "EditorIcons")
+        button.icon = util.getEditorIcon(config["icon_name"])
         button.pressed.connect(self[config["on_press"]])
 
         # Add shortcut
@@ -92,6 +109,29 @@ func initButtons(graph_editor: MusicGraphEditor):
 
         self.add_child(button)
 
+## template:
+##     {"node_type":"MenuButtton",
+##      "button_name": "File",
+##      "items": [
+##          {"item_name": "Save", "item_icon": "Save", "shortcut": "Command/Ctrl+S",
+##           "on_press": "onSaveAction"},
+##      ],
+##     }
+func addMenuButton(config: Dictionary):
+    print_debug(config)
+    var menu_button := MenuButton.new()
+    var popup := menu_button.get_popup()
+
+    menu_button.name = config["button_name"]
+    menu_button.text = config["button_name"]
+    for item in config["items"]:
+        popup.add_icon_item(
+            util.getEditorIcon(item["item_icon"]),
+            item["item_name"]
+        )
+
+    self.add_child(menu_button)
+
 func clear():
     for c in self.get_children():
         self.remove_child(c)
@@ -115,4 +155,4 @@ func onSingleNodeFocusingModePress():
 
 ## Called after graph_editor is init-ed.
 func onAddNodePress():
-    pass
+    self.graph_editor.addNode()

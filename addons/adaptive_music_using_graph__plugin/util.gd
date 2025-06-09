@@ -30,3 +30,8 @@ static func getEditorScale(): return EditorInterface.get_editor_scale()
 static func getEditorScaledSize(from_vec: Vector2):
     return from_vec * EditorInterface.get_editor_scale()
 #endregion
+
+#region Shortcut related
+static func getShortcutFromText(text: String):
+    pass
+#endregion

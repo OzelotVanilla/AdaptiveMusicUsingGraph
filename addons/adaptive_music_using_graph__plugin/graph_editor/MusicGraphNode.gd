@@ -15,10 +15,17 @@ func _init(music_node: MusicNode) -> void:
 func loadFromStore():
     self.position_offset = self.node_store.ui_position
     self.name = self.node_store.name
+    self.title = self.node_store.name
     for i in self.node_store.slot_info:
-        var label_test = Label.new()
-        label_test.text = "Test"
-        self.add_child(label_test)
+        # If path-in slot (index 0 and only has left connection).
+        if i.index == 0 and i.location == GraphNodeSlotInfo.SlotLocation.left:
+            var label = Label.new()
+            label.text = "In"
+        else:
+            var label_test = Label.new()
+            label_test.text = "Test"
+            self.add_child(label_test)
+
         self.set_slot(
             i.index,
             true if i.location == GraphNodeSlotInfo.SlotLocation.left else false,

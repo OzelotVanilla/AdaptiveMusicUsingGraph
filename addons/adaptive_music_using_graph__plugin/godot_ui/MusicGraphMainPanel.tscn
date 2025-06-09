@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://fgdjucwwpyxp"]
+[gd_scene load_steps=5 format=3 uid="uid://fgdjucwwpyxp"]
 
 [ext_resource type="Script" uid="uid://wnju0q4yul4r" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/MusicGraphMainPanel.gd" id="1_k18om"]
 [ext_resource type="PackedScene" uid="uid://dg4wxo8whwmri" path="res://addons/adaptive_music_using_graph__plugin/graph_editor/MusicGraphEditor.tscn" id="2_0kaly"]
 [ext_resource type="Script" uid="uid://bavhemeopxvqt" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/TopButtonBar.gd" id="2_ly262"]
+[ext_resource type="Script" uid="uid://cwjfl00tnjdhq" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/file_tab/FileTabList.gd" id="3_cpf4o"]
 
 [node name="MusicGraphMainPanel" type="MarginContainer"]
 anchors_preset = 15
@@ -42,19 +43,20 @@ split_offset = 400
 layout_mode = 2
 split_offset = 633
 
-[node name="OpeningFileContainer" type="VBoxContainer" parent="VBoxContainer/HSplit/FileTabAndParamList"]
+[node name="FileTab" type="VBoxContainer" parent="VBoxContainer/HSplit/FileTabAndParamList"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
 
-[node name="Search" type="LineEdit" parent="VBoxContainer/HSplit/FileTabAndParamList/OpeningFileContainer"]
+[node name="Search" type="LineEdit" parent="VBoxContainer/HSplit/FileTabAndParamList/FileTab"]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 placeholder_text = "Search File"
 clear_button_enabled = true
 
-[node name="FileList" type="ItemList" parent="VBoxContainer/HSplit/FileTabAndParamList/OpeningFileContainer"]
+[node name="FileTabList" type="ItemList" parent="VBoxContainer/HSplit/FileTabAndParamList/FileTab"]
 layout_mode = 2
 size_flags_vertical = 3
+script = ExtResource("3_cpf4o")
 
 [node name="ParamList" type="VBoxContainer" parent="VBoxContainer/HSplit/FileTabAndParamList"]
 custom_minimum_size = Vector2(0, 200)
@@ -70,16 +72,13 @@ layout_mode = 2
 [node name="MusicGraphEditor" parent="VBoxContainer/HSplit/EditorAndBreif" instance=ExtResource("2_0kaly")]
 layout_mode = 2
 show_grid = false
-connections = Array[Dictionary]([{
-"from_node": &"Test1",
-"from_port": 1,
-"keep_alive": false,
-"to_node": &"Test2",
-"to_port": 1
-}])
 minimap_enabled = false
 show_zoom_label = true
 
 [node name="Breif" type="HBoxContainer" parent="VBoxContainer/HSplit/EditorAndBreif"]
 custom_minimum_size = Vector2(0, 55)
 layout_mode = 2
+
+[connection signal="item_clicked" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="onFileTabClicked"]
+[connection signal="opening_file_switched" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="loadGraphFromAMUG"]
+[connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]

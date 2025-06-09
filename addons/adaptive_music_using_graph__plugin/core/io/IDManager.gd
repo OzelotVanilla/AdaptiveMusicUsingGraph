@@ -3,7 +3,7 @@
 class_name IDManager
 extends RefCounted
 
-static func getIDReassignedMusicGraphOf(graph: MusicGraph):
+static func getIDReassignedMusicGraphOf(graph: MusicGraph) -> MusicGraph:
     # Create a dict to store the mapping from old to new id.
     var node_new_id_dict: Dictionary[int, int] = {}
     var node_new_id_counter: int = 1

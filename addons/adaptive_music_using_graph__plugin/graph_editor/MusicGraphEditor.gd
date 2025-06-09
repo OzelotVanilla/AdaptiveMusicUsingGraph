@@ -7,6 +7,10 @@ extends GraphEdit
 # End of class document.
 
 
+## Emit when asked to close current selected tab.
+## The index of the tab, and the file itself will be emitted.
+signal close_selected_tab()
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -16,48 +20,58 @@ enum OperationMode
     single_node_focusing
 }
 
-
-## Internal storage of the graph.
+## Current graph showed on the editor UI.
 var graph_store: MusicGraph
 
+## Reference of the AMUGResource, used in saving.
+var resource_store: AMUGResource
+
 ## Counter used for new node creation.
-var node_id_counter: int
+var node_id_counter: int:
+    get: return self.graph_store.node_id_counter
 
 ## Counter used for new edge creation.
-var edge_id_counter: int
+var edge_id_counter: int:
+    get: return self.graph_store.edge_id_counter
 
 ## Current operation mode of UI.
-var operation_mode: OperationMode: set = __setOperationMode
-func __setOperationMode(m: OperationMode):
-    print_debug(str("Set MusicGraphEditor's operation_mode to \"", OperationMode.find_key(m), "\"."))
-    operation_mode = m
+var operation_mode: OperationMode:
+    set(m):
+        #print_debug(str("Set MusicGraphEditor's operation_mode to \"", OperationMode.find_key(m), "\"."))
+        operation_mode = m
 
+## Position of creating new node.
+var new_node_position: Vector2 = Vector2.ZERO
 
-# TODO
-func _init() -> void:
-    self.add_child(
-        MusicGraphNode.new(
-            MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-                GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
-                GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
-                GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-                GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
-            ])
-        )
-    )
-    self.add_child(
-        MusicGraphNode.new(
-            MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-                GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
-                GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
-                GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-            ])
-        )
-    )
-    var connect_result = self.connect_node("Test1",1,"Test2",1)
+@onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
+#func _init() -> void:
+    #self.add_child.bind(
+        #MusicGraphNode.new(
+            #MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
+                #GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
+                #GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
+                #GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+                #GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
+            #])
+        #)
+    #).call_deferred()
+    #self.add_child.bind(
+        #MusicGraphNode.new(
+            #MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
+                #GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
+                #GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
+                #GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+            #])
+        #)
+    #).call_deferred()
+    #var connect_result = self.connect_node("Test1",1,"Test2",1)
 
-func _gui_input(event: InputEvent) -> void:
-    self.__handleGUIInput__(event)
+func _enter_tree() -> void: return self.__onEnteringSceneTree__()
+func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event)
+func _shortcut_input(event: InputEvent) -> void: return self.shortcut_manager.handle(self, event)
+
+func __onEnteringSceneTree__():
+    pass
 
 func __handleGUIInput__(event: InputEvent):
     # TODO
@@ -67,18 +81,65 @@ func __handleGUIInput__(event: InputEvent):
         # If found a connection.
         if nearest_conn.size() > 0:
             pass
+        self.new_node_position = event.position
+
+func loadGraphFromAMUG(index: int, file: AMUGResource):
+    self.graph_store = file.music_graph
+    self.resource_store = file
+    self.loadGraphFromStore()
+
+func saveGraphToAMUG():
+    for c in self.get_children():
+        if c is MusicGraphNode:
+            c.saveUIInfoToStore()
+
+    ResourceSaver.save(
+        AMUGResource.new(IDManager.getIDReassignedMusicGraphOf(self.graph_store)),
+        self.resource_store.resource_path
+    )
 
 ## Load the UI and paramters from `self.graph_store`.
-func loadFromGraphStore():
+func loadGraphFromStore():
     # TODO
+    self.clearUI()
+
     var node_array := self.graph_store.node_array
     for node in self.graph_store.node_array:
         self.add_child(MusicGraphNode.new(node))
-    self.node_id_counter = node_array[-1].id + 1
 
+func clearUI():
+    self.clear_connections()
+    for c in self.get_children(): if c is GraphElement:
+        self.remove_child(c)
+        c.queue_free()
 
 ## Add new node.
 ## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
 func addNode():
-    # TODO
-    pass
+    var new_node_id = self.node_id_counter
+    self.node_id_counter += 1
+
+    var new_node = MusicNode.new(
+        new_node_id, str("MusicNode ", new_node_id),
+        null, null,
+        self.new_node_position + Vector2(20, 40)
+    )
+
+    # This `call_deferred` is required, to avoid error when removing the node.
+    self.add_child.bind(MusicGraphNode.new(new_node)).call_deferred()
+    self.graph_store.addNode(new_node_id, new_node)
+
+    # Avoiding stacking together when called multiple times.
+    self.new_node_position += Vector2(20, 40)
+
+func onSelectingNode(node: Node):
+    if node is GraphElement:
+        self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
+
+func onSavingAction():
+    if self.graph_store != null and self.resource_store != null:
+        self.saveGraphToAMUG()
+
+func onClosingAction():
+    # TODO: Ask for if whether save for unsaved file.
+    self.close_selected_tab.emit()

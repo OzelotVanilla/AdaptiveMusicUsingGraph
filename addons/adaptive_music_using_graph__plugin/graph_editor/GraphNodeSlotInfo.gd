@@ -71,3 +71,9 @@ func _to_string() -> String:
         " " if appending.length() > 0 else "",
         "}"
     )
+
+## The [code]in[/code] slot should always be the first.
+static func createPathInSlot():
+    return GraphNodeSlotInfo.new(
+        0, SlotLocation.left
+    )

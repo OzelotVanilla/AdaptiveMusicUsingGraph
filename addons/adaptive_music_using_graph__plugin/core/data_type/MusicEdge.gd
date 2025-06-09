@@ -1,3 +1,4 @@
+@tool
 class_name MusicEdge
 extends Resource
 ## Edge with evaluate expression.

@@ -1,3 +1,4 @@
+@tool
 class_name MusicNode
 extends Resource
 ## Node that holds music segment.
@@ -38,6 +39,7 @@ func _init(
     self.after_play_decision = after_play_decision
     self.ui_position = ui_position
     self.slot_info = slot_info
+    self.slot_info.push_front(GraphNodeSlotInfo.createPathInSlot())
 
     self.resource_name = str("MusicNode ", name if name.length() > 0 else str("#", id))
 
