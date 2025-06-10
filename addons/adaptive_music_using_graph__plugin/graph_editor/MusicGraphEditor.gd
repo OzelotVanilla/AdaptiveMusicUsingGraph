@@ -136,6 +136,9 @@ func onSelectingNode(node: Node):
     if node is GraphElement:
         self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
 
+func onCreatingNewFileAction():
+    pass
+
 func onSavingAction():
     if self.graph_store != null and self.resource_store != null:
         self.saveGraphToAMUG()

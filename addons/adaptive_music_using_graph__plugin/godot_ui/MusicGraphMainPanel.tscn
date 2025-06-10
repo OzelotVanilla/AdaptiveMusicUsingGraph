@@ -22,15 +22,7 @@ script = ExtResource("1_k18om")
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer"]
-custom_minimum_size = Vector2(0, 61)
-layout_mode = 2
-theme_override_constants/margin_left = 2
-theme_override_constants/margin_top = 2
-theme_override_constants/margin_right = 2
-theme_override_constants/margin_bottom = 2
-
-[node name="TopButtonBar" type="HBoxContainer" parent="VBoxContainer/MarginContainer"]
+[node name="TopButtonBar" type="HBoxContainer" parent="VBoxContainer"]
 layout_mode = 2
 script = ExtResource("2_ly262")
 
@@ -71,6 +63,7 @@ layout_mode = 2
 
 [node name="MusicGraphEditor" parent="VBoxContainer/HSplit/EditorAndBreif" instance=ExtResource("2_0kaly")]
 layout_mode = 2
+scroll_offset = Vector2(0, -59)
 show_grid = false
 minimap_enabled = false
 show_zoom_label = true
@@ -79,6 +72,8 @@ show_zoom_label = true
 custom_minimum_size = Vector2(0, 55)
 layout_mode = 2
 
+[connection signal="file_tab_list_changed" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/TopButtonBar" method="onFileTabListChange"]
 [connection signal="item_clicked" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="onFileTabClicked"]
 [connection signal="opening_file_switched" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="loadGraphFromAMUG"]
+[connection signal="close_selected_tab" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="closeSelectedTab"]
 [connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]

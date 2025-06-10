@@ -32,6 +32,30 @@ static func getEditorScaledSize(from_vec: Vector2):
 #endregion
 
 #region Shortcut related
-static func getShortcutFromText(text: String):
-    pass
+static var command_or_ctrl_check: RegEx:
+    get: return RegEx.create_from_string("(?i)(?:command/ctrl)|(?:ctrl/command)")
+static func getKeyPressShortcutFromText(text: String) -> Shortcut:
+    # Code adopt from Godot Channel
+    var shortcut = Shortcut.new()
+    var event = InputEventKey.new()
+    var key = OS.find_keycode_from_string(text)
+
+    # Check if "Command/Ctrl".
+    var is_command_or_ctrl := false
+    for part in text.split("+"):
+        if command_or_ctrl_check.search(part) != null:
+            event.command_or_control_autoremap = true
+            is_command_or_ctrl = true
+            break
+
+    event.pressed = true
+    event.keycode = key & KeyModifierMask.KEY_CODE_MASK
+    event.shift_pressed = key & KeyModifierMask.KEY_MASK_SHIFT
+    event.alt_pressed = key & KeyModifierMask.KEY_MASK_ALT
+    if not is_command_or_ctrl:
+        event.ctrl_pressed = key & KeyModifierMask.KEY_MASK_CTRL
+        event.meta_pressed = key & KeyModifierMask.KEY_MASK_META
+
+    shortcut.events.append(event)
+    return shortcut
 #endregion
