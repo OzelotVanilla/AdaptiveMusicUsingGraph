@@ -16,8 +16,9 @@ signal opening_file_switched(index: int, file: AMUGResource)
 
 var file_index_dict: Dictionary[AMUGResource, int] = {}
 
-## Open an AMUG resource file.
-func open(file: AMUGResource):
+## Open an AMUG resource file. [br]
+## Return the index of opened file.
+func open(file: AMUGResource) -> int:
     ## The index to select.
     var index: int
 
@@ -29,6 +30,7 @@ func open(file: AMUGResource):
         self.file_index_dict.set(file, index)
 
     self.file_tab_list_changed.emit(FileTabListChangeInfo.from(self))
+    return index
 
 ## Change current opening tab to another.
 func switchToTabAt(index: int):
@@ -60,3 +62,7 @@ func onFileTabClicked(index: int, at_position: Vector2, mouse_button_index: int)
         1: self.switchToTabAt(index)
         # TODO: If right click, show menu
         2: pass
+
+func onEditorFinishedCreatingNewFile(path: StringName) -> void:
+    var opened_index = self.open(ResourceLoader.load(path))
+    self.switchToTabAt(opened_index)

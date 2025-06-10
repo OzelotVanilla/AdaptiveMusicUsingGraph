@@ -137,6 +137,7 @@ func initButtons(graph_editor: MusicGraphEditor):
 func addMenuButton(config: Dictionary):
     var menu_button := MenuButton.new()
     var popup := menu_button.get_popup()
+    popup.clear()
 
     menu_button.text = config["button_name"]
 
@@ -144,6 +145,7 @@ func addMenuButton(config: Dictionary):
     menu_button.name = str("menu_button__", config["button_name"])
 
     # Add the item in popup menu.
+    var id_counter = 1
     for item in config["items"]:
         if item.has("node_type"):
             match item["node_type"]:
@@ -151,7 +153,9 @@ func addMenuButton(config: Dictionary):
 
             continue
 
-        var item_id = hash(item["item_name"])
+        #var item_id = hash(item["item_name"])
+        var item_id = id_counter
+        id_counter += 1
         popup.add_icon_item(
             util.getEditorIcon(item["item_icon"]),
             item["item_name"],

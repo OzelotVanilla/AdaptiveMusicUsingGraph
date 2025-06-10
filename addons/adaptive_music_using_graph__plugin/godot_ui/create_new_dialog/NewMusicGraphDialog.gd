@@ -4,12 +4,17 @@ extends ConfirmationDialog
 
 func _ready() -> void: self.__onReady__()
 
+signal created_new_file_from_editor(new_file_path: StringName)
+
 const default_new_name = "new_music_graph"
 const folder_select_dialog_min_size = Vector2i(1050, 700)
 
 @onready var path_edit: LineEdit = $VBoxContainer/GridContainer/PathSetting/PathEdit
 var folder_select: EditorFileDialog
 
+const dialog_min_size = Vector2i(800, 100)
+
+var is_creating_from_editor: bool = false
 
 func __onReady__():
     # Enter in PathEdit confirm the window.
@@ -26,6 +31,11 @@ func __onReady__():
     button.icon = util.getEditorIcon("Folder")
     button.connect("pressed", self.openFolderBrowser)
     path_setting.add_child(button)
+
+func requestPopup(paths: String, is_from_editor: bool = false):
+    self.setPathText(paths)
+    self.is_creating_from_editor = is_from_editor
+    self.popup_centered(self.dialog_min_size * util.editor_scale)
 
 func setPathText(path: String):
     if not path.ends_with("/"): path += "/"
@@ -46,6 +56,8 @@ func setPathText(path: String):
 func onOK():
     var new_file_path = self.path_edit.text
     ResourceSaver.save(AMUGResource.new(), new_file_path)
+    if self.is_creating_from_editor:
+        self.created_new_file_from_editor.emit(new_file_path)
 
 func openFolderBrowser():
     self.folder_select.visible = true

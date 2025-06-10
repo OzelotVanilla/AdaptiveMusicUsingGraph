@@ -7,6 +7,12 @@ extends GraphEdit
 # End of class document.
 
 
+## Emit when asked to create new file.
+signal create_new_file(path: PackedStringArray)
+
+## Emit when finish creating new file.
+signal finished_creating_new_file(path: StringName)
+
 ## Emit when asked to close current selected tab.
 ## The index of the tab, and the file itself will be emitted.
 signal close_selected_tab()
@@ -44,27 +50,29 @@ var operation_mode: OperationMode:
 var new_node_position: Vector2 = Vector2.ZERO
 
 @onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
-#func _init() -> void:
-    #self.add_child.bind(
-        #MusicGraphNode.new(
-            #MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-                #GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
-                #GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
-                #GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-                #GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
-            #])
-        #)
-    #).call_deferred()
-    #self.add_child.bind(
-        #MusicGraphNode.new(
-            #MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-                #GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
-                #GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
-                #GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-            #])
-        #)
-    #).call_deferred()
-    #var connect_result = self.connect_node("Test1",1,"Test2",1)
+const new_music_graph_dialog_scene = preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/create_new_dialog/NewMusicGraphDialog.tscn")
+@onready var new_music_graph_dialog: NewMusicGraphDialog
+# func _init() -> void:
+#     self.add_child.bind(
+#         MusicGraphNode.new(
+#             MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
+#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
+#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
+#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+#                 GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
+#             ])
+#         )
+#     ).call_deferred()
+#     self.add_child.bind(
+#         MusicGraphNode.new(
+#             MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
+#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
+#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
+#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+#             ])
+#         )
+#     ).call_deferred()
+#     var connect_result = self.connect_node("Test1",1,"Test2",1)
 
 func _enter_tree() -> void: return self.__onEnteringSceneTree__()
 func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event)
@@ -137,7 +145,15 @@ func onSelectingNode(node: Node):
         self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
 
 func onCreatingNewFileAction():
-    pass
+    if self.new_music_graph_dialog == null:
+        self.new_music_graph_dialog = self.new_music_graph_dialog_scene.instantiate()
+        self.new_music_graph_dialog.visible = false
+        self.new_music_graph_dialog.connect(
+            "created_new_file_from_editor",
+            func(path: StringName): self.finished_creating_new_file.emit(path)
+        )
+        self.add_child(self.new_music_graph_dialog)
+    self.new_music_graph_dialog.requestPopup("res://", true)
 
 func onSavingAction():
     if self.graph_store != null and self.resource_store != null:

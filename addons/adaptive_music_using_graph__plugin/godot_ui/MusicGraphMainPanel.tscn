@@ -76,4 +76,5 @@ layout_mode = 2
 [connection signal="item_clicked" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="onFileTabClicked"]
 [connection signal="opening_file_switched" from="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="loadGraphFromAMUG"]
 [connection signal="close_selected_tab" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="closeSelectedTab"]
+[connection signal="finished_creating_new_file" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="onEditorFinishedCreatingNewFile"]
 [connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]
