@@ -56,6 +56,17 @@ func getTopButtonsConfig():
      "on_press": "onAddNodePress",
      "icon_name": "Add", "shortcut": "n",
      "description": "Adding new music playback node."},
+
+    {"name": "Add New In-Out-Slot", "toggle_mode": false, "is_selected": false,
+     "on_press": "onAddInOutSlotPress",
+     "icon_name": "InsertBefore", "shortcut": "i",
+     "description": "Adding new input-then-output slot to a node. This slot is not evaluated if cursor got in from main input slot."},
+
+    {"name": "Add New Out-Slot", "toggle_mode": false, "is_selected": false,
+     "on_press": "onAddOutSlotPress",
+     "icon_name": "InsertAfter", "shortcut": "o",
+     "description": "Adding new output-only slot to a node. This slot will be evaluated together with others when cursor got in from main input slot."},
+
 ]
 
 var graph_editor: MusicGraphEditor
@@ -205,12 +216,21 @@ func onMoveModePress():
 func onConnectModePress():
     self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.connect
 
+## Called after graph_editor is init-ed.
 func onSingleNodeFocusingModePress():
     self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.single_node_focusing
 
 ## Called after graph_editor is init-ed.
 func onAddNodePress():
     self.graph_editor.addNode()
+
+## Called after graph_editor is init-ed.
+func onAddInOutSlotPress():
+    pass
+
+## Called after graph_editor is init-ed.
+func onAddOutSlotPress():
+    pass
 
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.

@@ -67,8 +67,8 @@ func _to_string() -> String:
     return str(
         "GraphNodeSlotInfo@{",
         "index: ", self.index, ", ",
-        "location: \"", SlotLocation.find_key(self.location), "\",",
-        " " if appending.length() > 0 else "",
+        "location: \"", SlotLocation.find_key(self.location), "\"",
+        ", " if appending.length() > 0 else "",
         "}"
     )
 

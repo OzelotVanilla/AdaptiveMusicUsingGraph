@@ -35,10 +35,12 @@ var resource_store: AMUGResource
 ## Counter used for new node creation.
 var node_id_counter: int:
     get: return self.graph_store.node_id_counter
+    set(value): self.graph_store.node_id_counter = value
 
 ## Counter used for new edge creation.
 var edge_id_counter: int:
     get: return self.graph_store.edge_id_counter
+    set(value): self.graph_store.edge_id_counter = value
 
 ## Current operation mode of UI.
 var operation_mode: OperationMode:
@@ -46,21 +48,14 @@ var operation_mode: OperationMode:
         #print_debug(str("Set MusicGraphEditor's operation_mode to \"", OperationMode.find_key(m), "\"."))
         operation_mode = m
 
+## The set of current selected music graph node.
+var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
+
 ## Position of creating new node.
 var new_node_position: Vector2 = Vector2.ZERO
 
 @onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
-const new_music_graph_dialog_scene = preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/create_new_dialog/NewMusicGraphDialog.tscn")
-@onready var new_music_graph_dialog: NewMusicGraphDialog = self.__initNewMusicGraphDialog()
-func __initNewMusicGraphDialog():
-    var new_music_graph_dialog = self.new_music_graph_dialog_scene.instantiate()
-    new_music_graph_dialog.visible = false
-    new_music_graph_dialog.connect(
-        "created_new_file_from_editor",
-        func(path: StringName): self.finished_creating_new_file.emit(path)
-    )
-    self.add_child(new_music_graph_dialog)
-    return new_music_graph_dialog
+@onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
 # func _init() -> void:
 #     self.add_child.bind(
@@ -150,12 +145,31 @@ func addNode():
     # Avoiding stacking together when called multiple times.
     self.new_node_position += Vector2(20, 40)
 
-func onSelectingNode(node: Node):
-    if node is GraphElement:
-        self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
+func onSelectingNode(node: GraphElement):
+    self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
+    if node is MusicGraphNode:
+        self.selected_nodes_set.set(node, null)
 
+func onDeselectingNode(node: Node):
+    if node is MusicGraphNode:
+        self.selected_nodes_set.erase(node)
+
+## Remove selected node.
+## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
+func onRemovingNode(node_names: Array[StringName]):
+    # First disconnect.
+
+    # Then delete.
+    for n in self.selected_nodes_set.keys():
+        self.remove_child.bind(n).call_deferred()
+
+## Will call new_music_graph_dialog.
 func onCreatingNewFileAction():
     self.new_music_graph_dialog.requestPopup("res://", true)
+
+## After created from new_music_graph_dialog.
+func onCreatedNewFile(path: StringName):
+    self.finished_creating_new_file.emit(path)
 
 func onSavingAction():
     if self.graph_store != null and self.resource_store != null:
@@ -163,4 +177,7 @@ func onSavingAction():
 
 func onClosingAction():
     # TODO: Ask for if whether save for unsaved file.
+    pass
+
+func onOKToCloseSelected():
     self.close_selected_tab.emit()

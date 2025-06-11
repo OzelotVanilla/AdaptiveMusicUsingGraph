@@ -17,14 +17,17 @@ func loadFromStore():
     self.name = self.node_store.name
     self.title = self.node_store.name
     for i in self.node_store.slot_info:
+        var slot_content: Control
+
         # If path-in slot (index 0 and only has left connection).
         if i.index == 0 and i.location == GraphNodeSlotInfo.SlotLocation.left:
-            var label = Label.new()
-            label.text = "In"
+            slot_content = Label.new()
+            slot_content.text = "Input"
         else:
-            var label_test = Label.new()
-            label_test.text = "Test"
-            self.add_child(label_test)
+            slot_content = Label.new()
+            slot_content.text = "Test"
+
+        self.add_child(slot_content)
 
         self.set_slot(
             i.index,
