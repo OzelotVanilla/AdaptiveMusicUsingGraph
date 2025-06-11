@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://dg4wxo8whwmri"]
+[gd_scene load_steps=3 format=3 uid="uid://dg4wxo8whwmri"]
 
 [ext_resource type="Script" uid="uid://420ydeq2eojr" path="res://addons/adaptive_music_using_graph__plugin/graph_editor/MusicGraphEditor.gd" id="1_sc1d8"]
+[ext_resource type="PackedScene" uid="uid://bunfnqpq2de4n" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/create_new_dialog/NewMusicGraphDialog.tscn" id="2_0kwit"]
 
 [node name="AdaptiveMusicGraphEditor" type="GraphEdit"]
 anchors_preset = 15
@@ -12,3 +13,8 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 script = ExtResource("1_sc1d8")
 metadata/_custom_type_script = "uid://420ydeq2eojr"
+
+[node name="NewMusicGraphDialog" parent="." instance=ExtResource("2_0kwit")]
+visible = false
+
+[connection signal="created_new_file_from_editor" from="NewMusicGraphDialog" to="." method="onCreatedNewFile"]

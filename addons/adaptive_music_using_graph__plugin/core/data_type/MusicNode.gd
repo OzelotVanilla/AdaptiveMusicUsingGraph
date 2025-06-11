@@ -25,6 +25,8 @@ extends Resource
 ## Slot information for the node.
 @export var slot_info: Array[GraphNodeSlotInfo]
 
+var slot_index_counter: int
+
 func _init(
         id: int,
         name: String,
@@ -33,6 +35,7 @@ func _init(
         ui_position: Vector2 = Vector2.ZERO,
         slot_info: Array[GraphNodeSlotInfo] = []
 ) -> void:
+    # Stored as Resource.
     self.id = id
     self.name = name
     self.music_segment = music_segment
@@ -40,6 +43,11 @@ func _init(
     self.ui_position = ui_position
     self.slot_info = slot_info
     self.slot_info.push_front(GraphNodeSlotInfo.createPathInSlot())
+
+
+    # NOT stored as Resource.
+    self.slot_info.sort_custom(func(a: GraphNodeSlotInfo, b: GraphNodeSlotInfo): a.index < b.index)
+    self.slot_index_counter = self.slot_info[-1].index + 1
 
     self.resource_name = str("MusicNode ", name if name.length() > 0 else str("#", id))
 
@@ -51,3 +59,8 @@ func _to_string() -> String:
         "slot_info: \"", self.slot_info, "\", ",
         "}"
     )
+
+func addSlot(slot_location: GraphNodeSlotInfo.SlotLocation):
+    var index = self.slot_index_counter
+    self.slot_index_counter += 1
+    self.slot_info.append(GraphNodeSlotInfo.new(index, slot_location))
