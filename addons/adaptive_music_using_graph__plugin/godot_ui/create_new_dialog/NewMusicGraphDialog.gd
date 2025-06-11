@@ -57,6 +57,7 @@ func onOK():
     var new_file_path = self.path_edit.text
     ResourceSaver.save(AMUGResource.new(), new_file_path)
     if self.is_creating_from_editor:
+        # This let editor emit signal `finished_creating_new_file`.
         self.created_new_file_from_editor.emit(new_file_path)
 
 func openFolderBrowser():

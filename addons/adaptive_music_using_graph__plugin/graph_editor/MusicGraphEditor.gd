@@ -51,7 +51,17 @@ var new_node_position: Vector2 = Vector2.ZERO
 
 @onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
 const new_music_graph_dialog_scene = preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/create_new_dialog/NewMusicGraphDialog.tscn")
-@onready var new_music_graph_dialog: NewMusicGraphDialog
+@onready var new_music_graph_dialog: NewMusicGraphDialog = self.__initNewMusicGraphDialog()
+func __initNewMusicGraphDialog():
+    var new_music_graph_dialog = self.new_music_graph_dialog_scene.instantiate()
+    new_music_graph_dialog.visible = false
+    new_music_graph_dialog.connect(
+        "created_new_file_from_editor",
+        func(path: StringName): self.finished_creating_new_file.emit(path)
+    )
+    self.add_child(new_music_graph_dialog)
+    return new_music_graph_dialog
+
 # func _init() -> void:
 #     self.add_child.bind(
 #         MusicGraphNode.new(
@@ -145,14 +155,6 @@ func onSelectingNode(node: Node):
         self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
 
 func onCreatingNewFileAction():
-    if self.new_music_graph_dialog == null:
-        self.new_music_graph_dialog = self.new_music_graph_dialog_scene.instantiate()
-        self.new_music_graph_dialog.visible = false
-        self.new_music_graph_dialog.connect(
-            "created_new_file_from_editor",
-            func(path: StringName): self.finished_creating_new_file.emit(path)
-        )
-        self.add_child(self.new_music_graph_dialog)
     self.new_music_graph_dialog.requestPopup("res://", true)
 
 func onSavingAction():
