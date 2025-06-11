@@ -7,3 +7,5 @@ extends Control
 ##
 ## It overlays with the connection, and should pass all the process (e.g., deletion) to the representing connection.
 # End of class document.
+
+var edge_store: MusicEdge

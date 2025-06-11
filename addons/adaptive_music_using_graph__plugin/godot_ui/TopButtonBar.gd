@@ -56,6 +56,17 @@ func getTopButtonsConfig():
      "on_press": "onAddNodePress",
      "icon_name": "Add", "shortcut": "n",
      "description": "Adding new music playback node."},
+
+    {"name": "Add New In-Out-Slot", "toggle_mode": false, "is_selected": false,
+     "on_press": "onAddInOutSlotPress",
+     "icon_name": "InsertBefore", "shortcut": "i",
+     "description": "Adding new input-then-output slot to a node. This slot is not evaluated if cursor got in from main input slot."},
+
+    {"name": "Add New Out-Slot", "toggle_mode": false, "is_selected": false,
+     "on_press": "onAddOutSlotPress",
+     "icon_name": "InsertAfter", "shortcut": "o",
+     "description": "Adding new output-only slot to a node. This slot will be evaluated together with others when cursor got in from main input slot."},
+
 ]
 
 var graph_editor: MusicGraphEditor
@@ -205,6 +216,7 @@ func onMoveModePress():
 func onConnectModePress():
     self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.connect
 
+## Called after graph_editor is init-ed.
 func onSingleNodeFocusingModePress():
     self.graph_editor.operation_mode = MusicGraphEditor.OperationMode.single_node_focusing
 
@@ -212,8 +224,29 @@ func onSingleNodeFocusingModePress():
 func onAddNodePress():
     self.graph_editor.addNode()
 
+## Called after graph_editor is init-ed.
+func onAddInOutSlotPress():
+    for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
+        node.addInOutSlot()
+
+## Called after graph_editor is init-ed.
+func onAddOutSlotPress():
+    for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
+        node.addOutSlot()
+
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.
     self.setEnabilityOfEditorButtons(
         info.selected_files.size() == 1
     )
+
+## Record the node name ([code]name[/code]) here.
+const button_enabled_only_when_multiple_node_selected: Array[StringName] = [
+    "editor_button__Add New In-Out-Slot", "editor_button__Add New Out-Slot"
+]
+
+func onSelectingNodeStatusChanged(selected_nodes_set: Dictionary[MusicGraphNode, Variant]) -> void:
+    var should_enable_when_multiple_node_selected = selected_nodes_set.size() >= 1
+    for button_name in self.button_enabled_only_when_multiple_node_selected:
+        var button: Button = self.get_node(NodePath(button_name))
+        button.disabled = not should_enable_when_multiple_node_selected

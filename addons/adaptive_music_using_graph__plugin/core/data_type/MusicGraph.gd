@@ -24,9 +24,9 @@ var edge_id_counter: int = 0
 ## Do not directly operate this.
 ## Using method defined below.[br]
 ##
-## This dict saves the all adjacent node to one node.
-## Key: node's id to search for adjacent.
-## Value: array of id of all connecting edge of this node (Edge contains `from` and `to` info for node).
+## This dict saves the all adjacent node to one node.[br]
+## * Key: node's id to search for adjacent.[br]
+## * Value: array of id of all connecting edge of this node (Edge contains `from` and `to` info for node).
 var adjacent_dict: Dictionary[int, PackedInt64Array] = {}
 
 func _init(
@@ -35,11 +35,11 @@ func _init(
 ) -> void:
     self.node_dict = {}; for n in node_array: self.node_dict[n.id] = n
     self.edge_dict = {}; for e in edge_array: self.edge_dict[e.id] = e
-    ## A temp dict storing node's adjacent edge's id. Type: Dictionary[NodeID, Set[EdgeID]].
+    ## A temp dict storing node's adjacent edge's id. Type: [code]Dictionary[NodeID, Set[EdgeID]][/code].
     var adjacency: Dictionary[int, Dictionary] = {}
     for e in edge_dict.values(): if e is MusicEdge:
         adjacency.get_or_add(e.from_node, {}).set(e.id, null)
-        adjacency.get_or_add(e.to_node, {}).set(e.id, null)
+        adjacency.get_or_add(e.to_node,   {}).set(e.id, null)
     for node_id in adjacency.keys():
         self.adjacent_dict[node_id] = PackedInt64Array(adjacency[node_id].keys())
 
@@ -52,11 +52,37 @@ func _init(
         edge_array.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
         self.edge_id_counter = edge_array[-1].id + 1
 
+const id_or_node__type_error__message = "The arg id_or_node must be int or MusicNode type."
 
-func getAdjacentEdgeOfNode(node: MusicNode) -> Array[MusicEdge]:
-    return self.getAdjacentEdgeOfNodeByID(node.id)
+func getNode(id_or_node: Variant) -> MusicNode:
+    assert(id_or_node is int or id_or_node is MusicNode, self.id_or_node__type_error__message)
 
-func getAdjacentEdgeOfNodeByID(node_id: int) -> Array[MusicEdge]:
+    if id_or_node is int: return self.node_dict.get(id_or_node)
+    else:                 return id_or_node
+
+func getIdOfNode(id_or_node: Variant) -> int:
+    assert(id_or_node is int or id_or_node is MusicNode, self.id_or_node__type_error__message)
+
+    if id_or_node is MusicNode: return self.node_dict.find_key(id_or_node)
+    else:                       return id_or_node
+
+const id_or_edge__type_error__message = "The arg id_or_edge must be int or MusicEdge type."
+
+func getEdge(id_or_edge: Variant) -> MusicEdge:
+    assert(id_or_edge is int or id_or_edge is MusicEdge, self.id_or_edge__type_error__message)
+
+    if id_or_edge is int: return self.edge_dict.get(id_or_edge)
+    else:                 return id_or_edge
+
+func getIdOfEdge(id_or_edge: Variant) -> int:
+    assert(id_or_edge is int or id_or_edge is MusicEdge, self.id_or_edge__type_error__message)
+
+    if id_or_edge is MusicEdge: return self.node_dict.find_key(id_or_edge)
+    else:                       return id_or_edge
+
+## [param id_or_node] can be either node id or MusicNode itself.
+func getAdjacentEdgeOfNode(id_or_node: Variant) -> Array[MusicEdge]:
+    var node_id := self.getIdOfNode(id_or_node)
     if adjacent_dict.has(node_id):
         var edge_ids: PackedInt64Array = adjacent_dict[node_id]
         var edges = []
@@ -77,11 +103,39 @@ func getAllEdges() -> Array[MusicEdge]:
     edges.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
     return edges
 
-func addNode(id: int, node: MusicNode):
-    self.node_dict.set(id, node)
+## Add a node.
+func addNode(node: MusicNode):
+    self.node_dict.set(node.id, node)
 
-## Remove a node by either its id or itself.
+## Remove a node by either its id, or itself.[br]
+## All connected edge of this node will also be removed.
 func removeNode(id_or_node: Variant):
-    if id_or_node is int:         self.node_dict.erase(id_or_node)
-    elif id_or_node is MusicNode: self.node_dict.erase(self.node_dict.find_key(id_or_node))
-    else: push_error(str("The arg id_or_node must be"))
+    var node_id := self.getIdOfNode(id_or_node)
+
+    # Remove all connections first.
+    for edge in self.getAdjacentEdgeOfNode(node_id):
+        self.removeEdge(edge)
+
+    # Then remove itself.
+    self.node_dict.erase(node_id)
+
+## Add an edge connecting two nodes.
+func addEdge(id: int, edge: MusicEdge):
+    # Add to edge_dict first.
+    self.edge_dict.set(id, edge)
+
+    # Then add to adjacency.
+    self.adjacent_dict.get_or_add(edge.from_node, {}).set(edge.id, null)
+    self.adjacent_dict.get_or_add(edge.to_node,   {}).set(edge.id, null)
+
+## Remove an edge by either its id, or itself.
+func removeEdge(id_or_edge: Variant):
+    var edge    := self.getEdge(id_or_edge)
+    var edge_id := self.getIdOfEdge(id_or_edge)
+
+    # Remove from adjacency list first.
+    self.adjacent_dict.get(edge.from_node).erase(edge_id)
+    self.adjacent_dict.get(edge.to_node)  .erase(edge_id)
+
+    # Then remove from edge_dict.
+    self.edge_dict.erase(edge_id)
