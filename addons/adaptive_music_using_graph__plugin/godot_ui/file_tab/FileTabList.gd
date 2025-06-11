@@ -5,7 +5,7 @@ extends ItemList
 ##
 # End of class document.
 
-## Emit when there is change (add/change/remove) in the list.[br]
+## Emit when there is change (add/select/change/remove) in the list.[br]
 ## The top level abstraction like `open` or `close` should emit it,
 ##  instead of using the impl func like `addTab`.
 signal file_tab_list_changed(info: FileTabListChangeInfo)
@@ -15,6 +15,15 @@ signal file_tab_list_changed(info: FileTabListChangeInfo)
 signal opening_file_switched(index: int, file: AMUGResource)
 
 var file_index_dict: Dictionary[AMUGResource, int] = {}
+
+var selected_files: Array[AMUGResource]:
+    get:
+        var result: Array[AMUGResource] = []
+        for index in self.get_selected_items():
+            result.append(self.file_index_dict.find_key(index))
+
+        return result
+
 
 ## Open an AMUG resource file. [br]
 ## Return the index of opened file.
@@ -32,10 +41,13 @@ func open(file: AMUGResource) -> int:
     self.file_tab_list_changed.emit(FileTabListChangeInfo.from(self))
     return index
 
-## Change current opening tab to another.
+## Change current opening tab to another.[br]
+## Since this method only switch to one tab, previous selected tab will be deselected first.
 func switchToTabAt(index: int):
+    self.deselect_all()
     self.select(index)
     self.opening_file_switched.emit(index, self.file_index_dict.find_key(index))
+    self.file_tab_list_changed.emit(FileTabListChangeInfo.from(self))
 
 ## Close a file and remove it from the tab list.
 func closeSelectedTab():
@@ -63,6 +75,8 @@ func onFileTabClicked(index: int, at_position: Vector2, mouse_button_index: int)
         # TODO: If right click, show menu
         2: pass
 
+## Called when created new file from editor.
+## Immediately open and switch to the new file.
 func onEditorFinishedCreatingNewFile(path: StringName) -> void:
     var opened_index = self.open(ResourceLoader.load(path))
     self.switchToTabAt(opened_index)

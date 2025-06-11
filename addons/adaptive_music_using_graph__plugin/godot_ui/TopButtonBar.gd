@@ -153,7 +153,6 @@ func addMenuButton(config: Dictionary):
 
             continue
 
-        #var item_id = hash(item["item_name"])
         var item_id = id_counter
         id_counter += 1
         popup.add_icon_item(
@@ -215,4 +214,6 @@ func onAddNodePress():
 
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.
-    self.setEnabilityOfEditorButtons(info.size > 0)
+    self.setEnabilityOfEditorButtons(
+        info.selected_files.size() == 1
+    )
