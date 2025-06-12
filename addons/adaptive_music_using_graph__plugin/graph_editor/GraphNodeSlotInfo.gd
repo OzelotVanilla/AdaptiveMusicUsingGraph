@@ -8,7 +8,8 @@ extends Resource
 enum SlotLocation
 {
     left,
-    right
+    right,
+    both
 }
 
 ## Index of the slot. Different for left/right side.

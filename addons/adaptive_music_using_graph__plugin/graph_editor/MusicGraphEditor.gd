@@ -17,6 +17,10 @@ signal finished_creating_new_file(path: StringName)
 ## The index of the tab, and the file itself will be emitted.
 signal close_selected_tab()
 
+## Emit when the node selecting status change.
+## With the information of a set recording current selecting nodes.
+signal node_select_status_changed(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -138,30 +142,74 @@ func addNode():
         self.new_node_position + Vector2(20, 40)
     )
 
+    # UI.
     # This `call_deferred` is required, to avoid error when removing the node.
     self.add_child.bind(MusicGraphNode.new(new_node)).call_deferred()
-    self.graph_store.addNode(new_node_id, new_node)
+
+    # Data.
+    self.graph_store.addNode(new_node)
 
     # Avoiding stacking together when called multiple times.
     self.new_node_position += Vector2(20, 40)
+
+func getNode(name: StringName) -> MusicGraphNode:
+    return self.get_node(NodePath(name))
+
+## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
+func removeNode(node: MusicGraphNode) -> void:
+    # First disconnect.
+    for edge in self.graph_store.getAdjacentEdgeOfNode(node.node_store.id):
+        # UI.
+        self.disconnect_node(
+            self.graph_store.getNode(edge.from_node).name, edge.from_slot,
+            self.graph_store.getNode(edge.to_node).name,   edge.to_slot
+        )
+        # Data: Do not need to remove here. Auto removed in `MusicGraph::removeNode`.
+
+    # Then delete.
+    # UI.
+    self.remove_child.bind(node).call_deferred()
+    # Data.
+    self.graph_store.removeNode(node.node_store)
 
 func onSelectingNode(node: GraphElement):
     self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
     if node is MusicGraphNode:
         self.selected_nodes_set.set(node, null)
 
+    self.node_select_status_changed.emit(self.selected_nodes_set)
+
 func onDeselectingNode(node: Node):
     if node is MusicGraphNode:
         self.selected_nodes_set.erase(node)
 
+    self.node_select_status_changed.emit(self.selected_nodes_set)
+
+## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
+func onConnectingNode(from_node__name: StringName, from_port: int, to_node__name: StringName, to_port: int):
+    # TODO: Check if can be connected.
+    # UI.
+    self.connect_node(from_node__name, from_port, to_node__name, to_port)
+
+    # Data.
+    var new_edge_id = self.edge_id_counter
+    self.edge_id_counter += 1
+    var from_node := self.getNode(from_node__name)
+    var to_node   := self.getNode(to_node__name)
+    var new_edge = MusicEdge.new(
+        new_edge_id, str("MusicEdge ", new_edge_id),
+        from_node.node_store.id, from_port,
+        to_node.node_store.id,   to_port
+    )
+
 ## Remove selected node.
 ## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
 func onRemovingNode(node_names: Array[StringName]):
-    # First disconnect.
+    for n in self.selected_nodes_set.keys(): if n is MusicGraphNode:
+        self.removeNode(n)
 
-    # Then delete.
-    for n in self.selected_nodes_set.keys():
-        self.remove_child.bind(n).call_deferred()
+    # Since they are no longer exist, need to update (or, clean) the selected nodes' set.
+    self.selected_nodes_set.clear()
 
 ## Will call new_music_graph_dialog.
 func onCreatingNewFileAction():

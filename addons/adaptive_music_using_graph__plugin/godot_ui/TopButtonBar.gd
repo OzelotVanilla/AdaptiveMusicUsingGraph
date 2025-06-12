@@ -226,14 +226,27 @@ func onAddNodePress():
 
 ## Called after graph_editor is init-ed.
 func onAddInOutSlotPress():
-    pass
+    for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
+        node.addInOutSlot()
 
 ## Called after graph_editor is init-ed.
 func onAddOutSlotPress():
-    pass
+    for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
+        node.addOutSlot()
 
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.
     self.setEnabilityOfEditorButtons(
         info.selected_files.size() == 1
     )
+
+## Record the node name ([code]name[/code]) here.
+const button_enabled_only_when_multiple_node_selected: Array[StringName] = [
+    "editor_button__Add New In-Out-Slot", "editor_button__Add New Out-Slot"
+]
+
+func onSelectingNodeStatusChanged(selected_nodes_set: Dictionary[MusicGraphNode, Variant]) -> void:
+    var should_enable_when_multiple_node_selected = selected_nodes_set.size() >= 1
+    for button_name in self.button_enabled_only_when_multiple_node_selected:
+        var button: Button = self.get_node(NodePath(button_name))
+        button.disabled = not should_enable_when_multiple_node_selected
