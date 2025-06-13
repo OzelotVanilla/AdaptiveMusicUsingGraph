@@ -201,7 +201,7 @@ func setEnabilityOfEditorButtons(value: bool):
     self.cache__editor_button_enability = value
 
     for child in self.get_children(): if child is Button:
-        if child.name.begins_with("editor_button__"):
+        if child.name.begins_with("editor_button__") and child.name not in self.button_enabled_only_when_multiple_node_selected:
             child.disabled = not value
 
 ## Called after graph_editor is init-ed.
