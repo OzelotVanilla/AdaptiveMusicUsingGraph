@@ -225,7 +225,8 @@ func onSavingAction():
 
 func onClosingAction():
     # TODO: Ask for if whether save for unsaved file.
-    pass
+
+    self.close_selected_tab.emit()
 
 func onOKToCloseSelected():
     self.close_selected_tab.emit()
