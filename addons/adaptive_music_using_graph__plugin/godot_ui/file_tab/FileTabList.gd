@@ -46,7 +46,7 @@ func open(file: AMUGResource) -> int:
 func switchToTabAt(index: int):
     self.deselect_all()
     self.select(index)
-    self.opening_file_switched.emit(index, self.file_index_dict.find_key(index))
+    self.opening_file_switched.emit(self.file_index_dict.find_key(index))
     self.file_tab_list_changed.emit(FileTabListChangeInfo.from(self))
 
 ## Close a file and remove it from the tab list.

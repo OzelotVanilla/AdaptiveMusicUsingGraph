@@ -26,19 +26,34 @@ func loadSlotInfoFromStore():
     self.clearAllSlots()
 
     # Add from storage.
-    for i in self.node_store.slot_info:
+    for i in self.node_store.strategy_slots:
         var slot_content: Control
 
-        # If path-in slot (index 0 and only has left connection).
-        if i.index == 0 and i.location == GraphNodeSlotInfo.SlotLocation.left:
-            slot_content = Label.new()
-            slot_content.text = "Input"
-        else:
-            slot_content = Label.new()
-            slot_content.text = "Test"
+        match i.type:
+            StrategySlot.Type.none:
+                slot_content = Label.new()
+                slot_content.text = "Not-Set-Yet"
+            StrategySlot.Type.global_input:
+                slot_content = Label.new()
+                slot_content.text = "Input"
+            StrategySlot.Type.status_change:
+                slot_content = Label.new()
+                slot_content.text = "Status"
+            StrategySlot.Type.expression:
+                slot_content = Label.new()
+                slot_content.text = "Expr"
+            StrategySlot.Type.default:
+                slot_content = Label.new()
+                slot_content.text = "Otherwise"
+            StrategySlot.Type.through:
+                slot_content = Label.new()
+                slot_content.text = "Go-Through"
 
-        self.add_child(slot_content)
-        self.setSlotBySlotInfo(i)
+        # Add wrapping panel and its style (border). Use panel for stability for `add_theme_stylebox_override` method.
+        var wrapping_panel = PanelContainer.new()
+        wrapping_panel.add_child(slot_content)
+        self.add_child(wrapping_panel)
+        self.setPortBySlotInfo(i)
 
 func clearAllSlots() -> void:
     # Clear port (Godot's slot).
@@ -52,14 +67,14 @@ func clearAllSlots() -> void:
 func saveUIInfoToStore():
     node_store.ui_position = self.position_offset
 
-func setSlotBySlotInfo(info: GraphNodeSlotInfo):
+func setPortBySlotInfo(info: StrategySlot):
     self.set_slot(
         info.index,
-        true if info.location == GraphNodeSlotInfo.SlotLocation.left or info.location == GraphNodeSlotInfo.SlotLocation.both
+        true if info.location == StrategySlot.PortLocation.left or info.location == StrategySlot.PortLocation.both
                 else false,
         info.connection_category,
         info.colour,
-        true if info.location == GraphNodeSlotInfo.SlotLocation.right or info.location == GraphNodeSlotInfo.SlotLocation.both
+        true if info.location == StrategySlot.PortLocation.right or info.location == StrategySlot.PortLocation.both
                 else false,
         info.connection_category,
         info.colour
@@ -68,7 +83,7 @@ func setSlotBySlotInfo(info: GraphNodeSlotInfo):
 ## Should operate both UI (`self`) and Data (`node_store: MusicNode`).
 func addInOutSlot() -> void:
     # Data.
-    self.node_store.addSlot(GraphNodeSlotInfo.SlotLocation.both)
+    self.node_store.addSlot(StrategySlot.PortLocation.both)
 
     # UI.
     self.loadSlotInfoFromStore()
@@ -76,11 +91,10 @@ func addInOutSlot() -> void:
 ## Should operate both UI (`self`) and Data (`node_store: MusicNode`).
 func addOutSlot() -> void:
     # Data.
-    self.node_store.addSlot(GraphNodeSlotInfo.SlotLocation.right)
+    self.node_store.addSlot(StrategySlot.PortLocation.right)
 
     # UI.
     self.loadSlotInfoFromStore()
-
 
 func _to_string() -> String:
     return str(
