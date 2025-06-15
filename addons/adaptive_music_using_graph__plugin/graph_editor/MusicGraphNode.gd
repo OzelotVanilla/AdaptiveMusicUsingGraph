@@ -37,7 +37,10 @@ func loadSlotInfoFromStore():
             slot_content = Label.new()
             slot_content.text = "Test"
 
-        self.add_child(slot_content)
+        # Add wrapping panel and its style (border). Use panel for stability for `add_theme_stylebox_override` method.
+        var wrapping_panel = PanelContainer.new()
+        wrapping_panel.add_child(slot_content)
+        self.add_child(wrapping_panel)
         self.setSlotBySlotInfo(i)
 
 func clearAllSlots() -> void:

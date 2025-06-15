@@ -7,9 +7,6 @@ extends GraphEdit
 # End of class document.
 
 
-## Emit when asked to create new file.
-signal create_new_file(path: PackedStringArray)
-
 ## Emit when finish creating new file.
 signal finished_creating_new_file(path: StringName)
 
@@ -58,7 +55,7 @@ var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
 ## Position of creating new node.
 var new_node_position: Vector2 = Vector2.ZERO
 
-@onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
+@onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
 # func _init() -> void:
@@ -100,7 +97,7 @@ func __handleGUIInput__(event: InputEvent):
             pass
         self.new_node_position = event.position
 
-func loadGraphFromAMUG(index: int, file: AMUGResource):
+func loadGraphFromAMUG(file: AMUGResource):
     self.graph_store = file.music_graph
     self.resource_store = file
     self.loadGraphFromStore()
@@ -129,6 +126,9 @@ func clearUI():
     for c in self.get_children(): if c is GraphElement:
         self.remove_child(c)
         c.queue_free()
+
+    self.selected_nodes_set.clear()
+    self.node_select_status_changed.emit(self.selected_nodes_set)
 
 ## Add new node.
 ## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
@@ -207,6 +207,7 @@ func onConnectingNode(from_node__name: StringName, from_port: int, to_node__name
 func onRemovingNode(node_names: Array[StringName]):
     for n in self.selected_nodes_set.keys(): if n is MusicGraphNode:
         self.removeNode(n)
+        n.queue_free()
 
     # Since they are no longer exist, need to update (or, clean) the selected nodes' set.
     self.selected_nodes_set.clear()
@@ -226,7 +227,8 @@ func onSavingAction():
 func onClosingAction():
     # TODO: Ask for if whether save for unsaved file.
 
-    self.close_selected_tab.emit()
+    self.onOKToCloseSelected()
 
 func onOKToCloseSelected():
     self.close_selected_tab.emit()
+    self.clearUI()

@@ -14,3 +14,12 @@ func _init(music_graph: MusicGraph = MusicGraph.new()) -> void:
             #])
         #]
     #)
+
+func _to_string() -> String: return self.toString()
+
+func toString():
+    return str(
+        "AMUGResource@{",
+        "music_graph: ", self.music_graph,
+        "}"
+    )
