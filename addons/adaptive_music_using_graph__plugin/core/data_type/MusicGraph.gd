@@ -52,6 +52,16 @@ func _init(
         edge_array.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
         self.edge_id_counter = edge_array[-1].id + 1
 
+func _to_string() -> String: return self.toString()
+
+func toString():
+    return str(
+        "MusicGraph@{",
+        "node_array: ", self.node_array, ", ",
+        "edge_array: ", self.edge_array,
+        "}"
+    )
+
 const id_or_node__type_error__message = "The arg id_or_node must be int or MusicNode type."
 
 func getNode(id_or_node: Variant) -> MusicNode:

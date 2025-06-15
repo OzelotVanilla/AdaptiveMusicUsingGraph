@@ -1,22 +1,45 @@
-class_name GraphNodeSlotInfo
+class_name StrategySlot
 extends Resource
-## Class for storing the single GraphNode slot info
+## Class for storing the after-playing decision for a node.
 ##
-##
+## The [code]PortLocation[/code] is the [i]slot[/i]'s position of Godot.
 # End of class document.
 
-enum SlotLocation
+enum PortLocation
 {
     left,
     right,
     both
 }
 
+## The decision type of the slot.[br]
+## For the in-path connected into main input, the precedence of the evaluation is:[br]
+## 1. status_change. [br]
+## 2. expression. [br]
+## 3. default. [br]
+enum Type
+{
+    ## Type is not-set-yet.
+    none,
+    ## For the global input path.
+    global_input,
+    ## Will be chosen when the game state is changing to defined state.
+    status_change,
+    ## Will accept game parameter, and use expression to calculate which route will be chosen.
+    expression,
+    ## The default route when all previous checks yields no chosen route.
+    default,
+    ## Directly go to this slot's out-path.
+    through
+}
+
 ## Index of the slot. Different for left/right side.
 @export var index: int
 
 ## The location of the slot on the node.
-@export var location: SlotLocation
+@export var location: PortLocation
+
+@export var type: Type
 
 const default_connection_category = 0
 ## `type_left`/`type_right` for the slot. By default, set to 0 in this project.
@@ -38,20 +61,22 @@ const list__revertable_properties: Array[StringName] = [
 
 func _init(
     index: int,
-    location: SlotLocation,
+    location: PortLocation,
+    type: Type = Type.none,
     connection_category: int = self.default_connection_category,
     colour: Color = self.default_colour,
     icon_or_path = null
 ) -> void:
     self.index = index
     self.location = location
+    self.type = type
     self.connection_category = connection_category
     self.colour = colour
 
     if icon_or_path != null and icon_or_path != "":
         if    icon_or_path is Texture2D: self.icon = icon_or_path
         elif  icon_or_path is String: self.icon_path = icon_or_path
-        else: push_error(str("Should not init GraphNodeSlotInfo's icon_or_path with type \"", icon_or_path.get_class(), "\""))
+        else: push_error(str("Should not init StrategySlot's icon_or_path with type \"", icon_or_path.get_class(), "\""))
 
 func _to_string() -> String:
     var icon_info := ""
@@ -66,15 +91,9 @@ func _to_string() -> String:
     )
 
     return str(
-        "GraphNodeSlotInfo@{",
+        "StrategySlot@{",
         "index: ", self.index, ", ",
-        "location: \"", SlotLocation.find_key(self.location), "\"",
+        "location: \"", PortLocation.find_key(self.location), "\"",
         ", " if appending.length() > 0 else "",
         "}"
-    )
-
-## The [code]in[/code] slot should always be the first.
-static func createPathInSlot():
-    return GraphNodeSlotInfo.new(
-        0, SlotLocation.left
     )

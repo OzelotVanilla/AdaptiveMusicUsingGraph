@@ -7,9 +7,6 @@ extends GraphEdit
 # End of class document.
 
 
-## Emit when asked to create new file.
-signal create_new_file(path: PackedStringArray)
-
 ## Emit when finish creating new file.
 signal finished_creating_new_file(path: StringName)
 
@@ -58,26 +55,26 @@ var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
 ## Position of creating new node.
 var new_node_position: Vector2 = Vector2.ZERO
 
-@onready var shortcut_manager = MusicGraphEditorShortcutManager.new()
+@onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
 # func _init() -> void:
 #     self.add_child.bind(
 #         MusicGraphNode.new(
 #             MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
+#                 StrategySlot.new(0, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(1, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(3, StrategySlot.SlotLocation.left),
 #             ])
 #         )
 #     ).call_deferred()
 #     self.add_child.bind(
 #         MusicGraphNode.new(
 #             MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
-#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
-#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+#                 StrategySlot.new(0, StrategySlot.SlotLocation.left),
+#                 StrategySlot.new(1, StrategySlot.SlotLocation.left),
+#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
 #             ])
 #         )
 #     ).call_deferred()
@@ -100,7 +97,7 @@ func __handleGUIInput__(event: InputEvent):
             pass
         self.new_node_position = event.position
 
-func loadGraphFromAMUG(index: int, file: AMUGResource):
+func loadGraphFromAMUG(file: AMUGResource):
     self.graph_store = file.music_graph
     self.resource_store = file
     self.loadGraphFromStore()
@@ -130,6 +127,9 @@ func clearUI():
         self.remove_child(c)
         c.queue_free()
 
+    self.selected_nodes_set.clear()
+    self.node_select_status_changed.emit(self.selected_nodes_set)
+
 ## Add new node.
 ## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
 func addNode():
@@ -138,7 +138,7 @@ func addNode():
 
     var new_node = MusicNode.new(
         new_node_id, str("MusicNode ", new_node_id),
-        null, null,
+        null,
         self.new_node_position + Vector2(20, 40)
     )
 
@@ -207,6 +207,7 @@ func onConnectingNode(from_node__name: StringName, from_port: int, to_node__name
 func onRemovingNode(node_names: Array[StringName]):
     for n in self.selected_nodes_set.keys(): if n is MusicGraphNode:
         self.removeNode(n)
+        n.queue_free()
 
     # Since they are no longer exist, need to update (or, clean) the selected nodes' set.
     self.selected_nodes_set.clear()
@@ -227,7 +228,8 @@ func onSavingAction():
 func onClosingAction():
     # TODO: Ask for if whether save for unsaved file.
 
-    self.close_selected_tab.emit()
+    self.onOKToCloseSelected()
 
 func onOKToCloseSelected():
     self.close_selected_tab.emit()
+    self.clearUI()
