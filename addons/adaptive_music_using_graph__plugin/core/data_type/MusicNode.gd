@@ -4,6 +4,7 @@ extends Resource
 ## Node that holds music segment.
 # End of class document.
 
+
 ## The id of the node.
 ## Could be re-assigned for ID reusing purpose.
 @export var id: int
@@ -15,15 +16,12 @@ extends Resource
 ## The music played by this node.
 @export var music_segment: AudioStream
 
-## The decision tree of next node, after current node ends playing.
-@export var after_play_decision: MusicAfterPlayDecision
-
 ## The offset of the position in the GraphEdit's UI.
 ## Not required in `_init`.
 @export var ui_position: Vector2
 
-## Slot information for the node.
-@export var slot_info: Array[GraphNodeSlotInfo]
+## The stategy slot information, containing after-playing decision at different condition.
+@export var strategy_slots: Array[StrategySlot]
 
 var slot_index_counter: int
 
@@ -31,24 +29,21 @@ func _init(
         id: int,
         name: String,
         music_segment: AudioStream = null,
-        after_play_decision: MusicAfterPlayDecision = null,
         ui_position: Vector2 = Vector2.ZERO,
-        slot_info: Array[GraphNodeSlotInfo] = []
+        strategy_slots: Array[StrategySlot] = []
 ) -> void:
     # Stored as Resource.
     self.id = id
     self.name = name
     self.music_segment = music_segment
-    self.after_play_decision = after_play_decision
     self.ui_position = ui_position
-    self.slot_info = slot_info
-    self.slot_info.push_front(GraphNodeSlotInfo.createPathInSlot())
-
+    self.strategy_slots = strategy_slots
+    if self.strategy_slots.size() == 0: # Add global-input
+        self.addSlot(StrategySlot.PortLocation.left)
+    self.strategy_slots.sort_custom(func(a: StrategySlot, b: StrategySlot): a.index < b.index)
 
     # NOT stored as Resource.
-    self.slot_info.sort_custom(func(a: GraphNodeSlotInfo, b: GraphNodeSlotInfo): a.index < b.index)
-    self.slot_index_counter = self.slot_info[-1].index + 1
-
+    self.slot_index_counter = self.strategy_slots[-1].index + 1
     self.resource_name = str("MusicNode ", name if name.length() > 0 else str("#", id))
 
 func _to_string() -> String:
@@ -56,11 +51,20 @@ func _to_string() -> String:
         "MusicNode@{",
         "id: ", self.id, ", ",
         "name: \"", self.name, "\", ",
-        "slot_info: \"", self.slot_info, "\", ",
+        "strategy_slots: \"", self.strategy_slots, "\", ",
         "}"
     )
 
-func addSlot(slot_location: GraphNodeSlotInfo.SlotLocation):
+func addSlot(port_location: StrategySlot.PortLocation):
     var index = self.slot_index_counter
     self.slot_index_counter += 1
-    self.slot_info.append(GraphNodeSlotInfo.new(index, slot_location))
+    var slot_type
+    match port_location:
+        StrategySlot.PortLocation.left:
+            slot_type = StrategySlot.Type.global_input
+        StrategySlot.PortLocation.right:
+            slot_type = StrategySlot.Type.none
+        StrategySlot.PortLocation.both:
+            slot_type = StrategySlot.Type.through
+
+    self.strategy_slots.append(StrategySlot.new(index, port_location, slot_type))

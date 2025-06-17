@@ -62,19 +62,19 @@ var new_node_position: Vector2 = Vector2.ZERO
 #     self.add_child.bind(
 #         MusicGraphNode.new(
 #             MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
-#                 GraphNodeSlotInfo.new(3, GraphNodeSlotInfo.SlotLocation.left),
+#                 StrategySlot.new(0, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(1, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
+#                 StrategySlot.new(3, StrategySlot.SlotLocation.left),
 #             ])
 #         )
 #     ).call_deferred()
 #     self.add_child.bind(
 #         MusicGraphNode.new(
 #             MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-#                 GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.left),
-#                 GraphNodeSlotInfo.new(1, GraphNodeSlotInfo.SlotLocation.left),
-#                 GraphNodeSlotInfo.new(2, GraphNodeSlotInfo.SlotLocation.right),
+#                 StrategySlot.new(0, StrategySlot.SlotLocation.left),
+#                 StrategySlot.new(1, StrategySlot.SlotLocation.left),
+#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
 #             ])
 #         )
 #     ).call_deferred()
@@ -138,7 +138,7 @@ func addNode():
 
     var new_node = MusicNode.new(
         new_node_id, str("MusicNode ", new_node_id),
-        null, null,
+        null,
         self.new_node_position + Vector2(20, 40)
     )
 

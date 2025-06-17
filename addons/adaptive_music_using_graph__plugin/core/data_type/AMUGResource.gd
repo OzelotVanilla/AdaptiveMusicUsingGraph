@@ -10,7 +10,7 @@ func _init(music_graph: MusicGraph = MusicGraph.new()) -> void:
     #self.music_graph = MusicGraph.new(
         #[
             #MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-                #GraphNodeSlotInfo.new(0, GraphNodeSlotInfo.SlotLocation.right)
+                #StrategySlot.new(0, StrategySlot.SlotLocation.right)
             #])
         #]
     #)
