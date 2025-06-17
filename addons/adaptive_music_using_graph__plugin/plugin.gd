@@ -11,7 +11,7 @@ func _handles(object: Object) -> bool:     return object is AMUGResource
 func _edit(object: Object) -> void:        return self.music_graph_main_panel.handleEditRequestOf(object)
 func _make_visible(visible: bool) -> void: return self.setVisibility(visible)
 
-var music_graph_main_panel_scene = preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/MusicGraphMainPanel.tscn")
+var music_graph_main_panel_scene = preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/MusicGraphMainPanel.tscn")
 var music_graph_main_panel: MusicGraphMainPanel
 const tool_menu__name := "Open Music Graph Editor"
 const panel_tab__name := "MusicGraphEditor"
