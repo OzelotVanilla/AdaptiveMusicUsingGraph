@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://fgdjucwwpyxp"]
 
-[ext_resource type="Script" uid="uid://wnju0q4yul4r" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/MusicGraphMainPanel.gd" id="1_k18om"]
+[ext_resource type="Script" uid="uid://wnju0q4yul4r" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/MusicGraphMainPanel.gd" id="1_k18om"]
 [ext_resource type="PackedScene" uid="uid://dg4wxo8whwmri" path="res://addons/adaptive_music_using_graph__plugin/graph_editor/MusicGraphEditor.tscn" id="2_0kaly"]
-[ext_resource type="Script" uid="uid://bavhemeopxvqt" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/TopButtonBar.gd" id="2_ly262"]
+[ext_resource type="Script" uid="uid://bavhemeopxvqt" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/TopButtonBar.gd" id="2_ly262"]
 [ext_resource type="Script" uid="uid://cwjfl00tnjdhq" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/file_tab/FileTabList.gd" id="3_cpf4o"]
 
 [node name="MusicGraphMainPanel" type="MarginContainer"]
@@ -80,5 +80,8 @@ layout_mode = 2
 [connection signal="delete_nodes_request" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onRemovingNode"]
 [connection signal="finished_creating_new_file" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList" method="onEditorFinishedCreatingNewFile"]
 [connection signal="node_deselected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onDeselectingNode"]
+[connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_NodeSelectStatusChanged"]
 [connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/TopButtonBar" method="onSelectingNodeStatusChanged"]
 [connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]
+[connection signal="node_slot_being_clicked" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_NodeSlotBeingClicked"]
+[connection signal="selected_node_had_changing" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_SelectedNodeHadChanging"]

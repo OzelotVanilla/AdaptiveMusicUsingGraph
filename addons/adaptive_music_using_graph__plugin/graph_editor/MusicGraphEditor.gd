@@ -15,8 +15,17 @@ signal finished_creating_new_file(path: StringName)
 signal close_selected_tab()
 
 ## Emit when the node selecting status change.
-## With the information of a set recording current selecting nodes.
+## With the information of a set recording current selecting nodes. [br]
+## Node selecting status is considered changed when:
+## * Selecting/Deselecting one or more nodes.
 signal node_select_status_changed(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
+
+## Emit when there are changes happened in the currently selected node(s).
+## For example, adding slot.
+signal selected_node_had_changing(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
+
+## When a slot of a [code]MusicGraphNode[/code] is clicked.
+signal node_slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
 
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
@@ -36,12 +45,16 @@ var resource_store: AMUGResource
 ## Counter used for new node creation.
 var node_id_counter: int:
     get: return self.graph_store.node_id_counter
-    set(value): self.graph_store.node_id_counter = value
+    set(value):
+        node_id_counter = value
+        self.graph_store.node_id_counter = value
 
 ## Counter used for new edge creation.
 var edge_id_counter: int:
     get: return self.graph_store.edge_id_counter
-    set(value): self.graph_store.edge_id_counter = value
+    set(value):
+        edge_id_counter = value
+        self.graph_store.edge_id_counter = value
 
 ## Current operation mode of UI.
 var operation_mode: OperationMode:
@@ -58,31 +71,13 @@ var new_node_position: Vector2 = Vector2.ZERO
 @onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
-# func _init() -> void:
-#     self.add_child.bind(
-#         MusicGraphNode.new(
-#             MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-#                 StrategySlot.new(0, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(1, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(3, StrategySlot.SlotLocation.left),
-#             ])
-#         )
-#     ).call_deferred()
-#     self.add_child.bind(
-#         MusicGraphNode.new(
-#             MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-#                 StrategySlot.new(0, StrategySlot.SlotLocation.left),
-#                 StrategySlot.new(1, StrategySlot.SlotLocation.left),
-#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
-#             ])
-#         )
-#     ).call_deferred()
-#     var connect_result = self.connect_node("Test1",1,"Test2",1)
 
 func _enter_tree() -> void: return self.__onEnteringSceneTree__()
 func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event)
 func _shortcut_input(event: InputEvent) -> void: return self.shortcut_manager.handle(self, event)
+
+func _init() -> void:
+    pass
 
 func __onEnteringSceneTree__():
     pass
@@ -142,9 +137,16 @@ func addNode():
         self.new_node_position + Vector2(20, 40)
     )
 
+    # Signal.
+    var new_graph_node := MusicGraphNode.new(new_node)
+    new_graph_node.connect(
+        "slot_being_clicked",
+        self.onNodeSlotBeingClicked
+    )
+
     # UI.
     # This `call_deferred` is required, to avoid error when removing the node.
-    self.add_child.bind(MusicGraphNode.new(new_node)).call_deferred()
+    self.add_child.bind(new_graph_node).call_deferred()
 
     # Data.
     self.graph_store.addNode(new_node)
@@ -233,3 +235,10 @@ func onClosingAction():
 func onOKToCloseSelected():
     self.close_selected_tab.emit()
     self.clearUI()
+
+func onNodeSlotBeingClicked(node: MusicGraphNode, slot: StrategySlot):
+    # Select the node that contains this slot.
+    self.set_selected(node)
+
+    # Then tell the bottom panel to show and focus/scroll.
+    self.node_slot_being_clicked.emit(node, slot)

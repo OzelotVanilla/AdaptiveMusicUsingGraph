@@ -1,0 +1,50 @@
+[gd_scene load_steps=5 format=3 uid="uid://bd61y0qw0qgph"]
+
+[ext_resource type="Script" uid="uid://cojyg5wg7kjk1" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/MusicGraphBottomPanel.gd" id="1_glidp"]
+[ext_resource type="Script" uid="uid://27g8h16on86e" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/SlotControlPanelButton.gd" id="2_58t80"]
+[ext_resource type="Script" uid="uid://uemtpfjhpf00" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/SlotControlBar.gd" id="3_i75nn"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_58t80"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 5.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
+
+[node name="MusicGraphBottomPanel" type="MarginContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+script = ExtResource("1_glidp")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 2
+
+[node name="SlotControlPanelButton" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+script = ExtResource("2_58t80")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_58t80")
+vertical_scroll_mode = 0
+
+[node name="SlotControlBar" type="HBoxContainer" parent="VBoxContainer/ScrollContainer"]
+custom_minimum_size = Vector2(0, 400)
+layout_direction = 2
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("3_i75nn")

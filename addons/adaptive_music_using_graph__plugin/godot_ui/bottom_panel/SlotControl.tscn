@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://bo87gn5t634f4"]
+
+[ext_resource type="Script" uid="uid://orvpqjpv76x" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/SlotControl.gd" id="1_y2prq"]
+
+[node name="SlotControl" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+script = ExtResource("1_y2prq")
+
+[node name="Title" type="LineEdit" parent="."]
+layout_mode = 2
+placeholder_text = "Slot Type"
+alignment = 1
+editable = false
+
+[node name="FixedOptionContainer" type="MarginContainer" parent="."]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 4
+
+[node name="GridContainer" type="GridContainer" parent="FixedOptionContainer"]
+layout_mode = 2
+columns = 2
+
+[node name="EvalTypeLabel" type="Label" parent="FixedOptionContainer/GridContainer"]
+layout_mode = 2
+text = "Evaluation Type"
+
+[node name="EvalTypeDropdown" type="OptionButton" parent="FixedOptionContainer/GridContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SpecificSettingPanel" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
