@@ -15,8 +15,14 @@ signal finished_creating_new_file(path: StringName)
 signal close_selected_tab()
 
 ## Emit when the node selecting status change.
-## With the information of a set recording current selecting nodes.
+## With the information of a set recording current selecting nodes. [br]
+## Node selecting status is considered changed when:
+## * Selecting/Deselecting one or more nodes.
 signal node_select_status_changed(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
+
+## Emit when there are changes happened in the currently selected node(s).
+## For example, adding slot.
+signal selected_node_had_changing(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
 
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
@@ -58,27 +64,6 @@ var new_node_position: Vector2 = Vector2.ZERO
 @onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
-# func _init() -> void:
-#     self.add_child.bind(
-#         MusicGraphNode.new(
-#             MusicNode.new(1,"Test1", null, null, Vector2(10,10), [
-#                 StrategySlot.new(0, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(1, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
-#                 StrategySlot.new(3, StrategySlot.SlotLocation.left),
-#             ])
-#         )
-#     ).call_deferred()
-#     self.add_child.bind(
-#         MusicGraphNode.new(
-#             MusicNode.new(2,"Test2", null, null, Vector2(300,300), [
-#                 StrategySlot.new(0, StrategySlot.SlotLocation.left),
-#                 StrategySlot.new(1, StrategySlot.SlotLocation.left),
-#                 StrategySlot.new(2, StrategySlot.SlotLocation.right),
-#             ])
-#         )
-#     ).call_deferred()
-#     var connect_result = self.connect_node("Test1",1,"Test2",1)
 
 func _enter_tree() -> void: return self.__onEnteringSceneTree__()
 func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event)
