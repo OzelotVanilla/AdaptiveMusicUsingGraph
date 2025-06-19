@@ -33,6 +33,8 @@ enum Type
     through
 }
 
+var type__description: StringName: get = getTypeDescription
+
 ## Index of the slot. Different for left/right side.
 @export var index: int
 
@@ -97,3 +99,23 @@ func _to_string() -> String:
         ", " if appending.length() > 0 else "",
         "}"
     )
+
+func getTypeDescription():
+    match self.type:
+        StrategySlot.Type.none:
+            return "Not-Set-Yet"
+
+        StrategySlot.Type.global_input:
+            return "Input"
+
+        StrategySlot.Type.status_change:
+            return "Status"
+
+        StrategySlot.Type.expression:
+            return "Expr"
+
+        StrategySlot.Type.default:
+            return "Otherwise"
+
+        StrategySlot.Type.through:
+            return "Go-Through"

@@ -229,10 +229,14 @@ func onAddInOutSlotPress():
     for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
         node.addInOutSlot()
 
+    self.graph_editor.selected_node_had_changing.emit(self.graph_editor.selected_nodes_set)
+
 ## Called after graph_editor is init-ed.
 func onAddOutSlotPress():
     for node in self.graph_editor.selected_nodes_set.keys(): if node is MusicGraphNode:
         node.addOutSlot()
+
+    self.graph_editor.selected_node_had_changing.emit(self.graph_editor.selected_nodes_set)
 
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.

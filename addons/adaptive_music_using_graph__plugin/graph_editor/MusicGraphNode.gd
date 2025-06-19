@@ -29,25 +29,8 @@ func loadSlotInfoFromStore():
     for i in self.node_store.strategy_slots:
         var slot_content: Control
 
-        match i.type:
-            StrategySlot.Type.none:
-                slot_content = Label.new()
-                slot_content.text = "Not-Set-Yet"
-            StrategySlot.Type.global_input:
-                slot_content = Label.new()
-                slot_content.text = "Input"
-            StrategySlot.Type.status_change:
-                slot_content = Label.new()
-                slot_content.text = "Status"
-            StrategySlot.Type.expression:
-                slot_content = Label.new()
-                slot_content.text = "Expr"
-            StrategySlot.Type.default:
-                slot_content = Label.new()
-                slot_content.text = "Otherwise"
-            StrategySlot.Type.through:
-                slot_content = Label.new()
-                slot_content.text = "Go-Through"
+        slot_content = Label.new()
+        slot_content.text = i.type__description
 
         # Add wrapping panel and its style (border). Use panel for stability for `add_theme_stylebox_override` method.
         var wrapping_panel = PanelContainer.new()
