@@ -28,10 +28,14 @@ func __prepareTheme__():
 
 ## Connected in [code]plugin.gd[/code].
 func on_GraphEditor_NodeSelectStatusChanged(selected_nodes_set: Dictionary[MusicGraphNode, Variant]):
-    if selected_nodes_set.size() == 1:
-        self.slot_control_bar.generateControlFromNode(selected_nodes_set.keys()[0])
-    else:
-        self.slot_control_bar.clear()
+    # Must be grater/equal than 0.
+    match selected_nodes_set.size():
+        1:
+            self.slot_control_bar.generateControlFromNode(selected_nodes_set.keys()[0])
+        0:
+            self.slot_control_bar.showSelectNodeToStart()
+        var n when n >= 0:
+            self.slot_control_bar.showTooManyNodesSelected()
 
 ## Connected in [code]plugin.gd[/code].
 func on_GraphEditor_SelectedNodeHadChanging(selected_nodes_set: Dictionary[MusicGraphNode, Variant]):

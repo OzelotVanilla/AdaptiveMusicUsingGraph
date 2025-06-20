@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://bo87gn5t634f4"]
+
+[ext_resource type="Script" uid="uid://orvpqjpv76x" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/SlotControl.gd" id="1_y2prq"]
+
+[node name="SlotControlBar" type="VBoxContainer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+script = ExtResource("1_y2prq")
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 2
+text = "Slot Type"
