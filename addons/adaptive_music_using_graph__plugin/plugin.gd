@@ -51,7 +51,7 @@ func __onEnteringSceneTree__():
         self.filesystem_popup_helper
     )
 
-    # Connect two panel's necessary signal.
+    # Connect Main and Bottom panel's necessary signal.
     self.music_graph_main_panel.connect(
         "graph_editor__node_select_status_changed",
         self.music_graph_bottom_panel.on_GraphEditor_NodeSelectStatusChanged

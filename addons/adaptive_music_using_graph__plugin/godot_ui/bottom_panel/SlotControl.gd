@@ -4,19 +4,32 @@ extends VBoxContainer
 
 var slot__stored: StrategySlot
 
+var title: Label:
+    get: return $Title
+
 func _notification(what: int) -> void: return self.__onNotification__(what)
 
-func _init(slot: StrategySlot) -> void:
+## Since this scene would be called by [code]PackedScene::instantiate[/code],
+##  so all params are set to optional.
+func _init(slot: StrategySlot = null) -> void:
     # Data.
-    self.slot__stored = slot
+    if slot != null:
+        self.slot__stored = slot
 
     # UI.
-    self.size_flags_vertical = SizeFlags.SIZE_EXPAND_FILL
     self.add_theme_constant_override("separation", 4 * util.editor_scale)
+    self.loadUIFromStorage() # If possible.
 
-    var title = Label.new()
-    title.text = slot.type__description
-    self.add_child(title)
+## Try load from the UI info.
+## Abort when [code]self.slot__stored[/code] is null.[br]
+## Can reset the [code]self.slot__stored[/code] by param [param slot].
+func loadUIFromStorage(slot: StrategySlot = null):
+    # Try set and Try load.
+    if slot != null: self.slot__stored = slot
+    if self.slot__stored == null: return
+
+    # Load.
+    self.title.text = self.slot__stored.type__description
 
 func __onNotification__(reason):
     match reason:
