@@ -196,6 +196,7 @@ func onRemovingNode(node_names: Array[StringName]):
 
     # Since they are no longer exist, need to update (or, clean) the selected nodes' set.
     self.selected_nodes_set.clear()
+    self.node_select_status_changed.emit(self.selected_nodes_set)
 
 ## Will call new_music_graph_dialog.
 func onCreatingNewFileAction():
