@@ -24,6 +24,9 @@ signal node_select_status_changed(selected_nodes_set: Dictionary[MusicGraphNode,
 ## For example, adding slot.
 signal selected_node_had_changing(selected_nodes_set: Dictionary[MusicGraphNode, Variant])
 
+## When a slot of a [code]MusicGraphNode[/code] is clicked.
+signal node_slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -42,12 +45,16 @@ var resource_store: AMUGResource
 ## Counter used for new node creation.
 var node_id_counter: int:
     get: return self.graph_store.node_id_counter
-    set(value): self.graph_store.node_id_counter = value
+    set(value):
+        node_id_counter = value
+        self.graph_store.node_id_counter = value
 
 ## Counter used for new edge creation.
 var edge_id_counter: int:
     get: return self.graph_store.edge_id_counter
-    set(value): self.graph_store.edge_id_counter = value
+    set(value):
+        edge_id_counter = value
+        self.graph_store.edge_id_counter = value
 
 ## Current operation mode of UI.
 var operation_mode: OperationMode:
@@ -68,6 +75,9 @@ var new_node_position: Vector2 = Vector2.ZERO
 func _enter_tree() -> void: return self.__onEnteringSceneTree__()
 func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event)
 func _shortcut_input(event: InputEvent) -> void: return self.shortcut_manager.handle(self, event)
+
+func _init() -> void:
+    pass
 
 func __onEnteringSceneTree__():
     pass
@@ -127,9 +137,16 @@ func addNode():
         self.new_node_position + Vector2(20, 40)
     )
 
+    # Signal.
+    var new_graph_node := MusicGraphNode.new(new_node)
+    new_graph_node.connect(
+        "slot_being_clicked",
+        self.onNodeSlotBeingClicked
+    )
+
     # UI.
     # This `call_deferred` is required, to avoid error when removing the node.
-    self.add_child.bind(MusicGraphNode.new(new_node)).call_deferred()
+    self.add_child.bind(new_graph_node).call_deferred()
 
     # Data.
     self.graph_store.addNode(new_node)
@@ -218,3 +235,12 @@ func onClosingAction():
 func onOKToCloseSelected():
     self.close_selected_tab.emit()
     self.clearUI()
+
+func onNodeSlotBeingClicked(node: MusicGraphNode, slot: StrategySlot):
+    self.selected_nodes_set.clear()
+    self.selected_nodes_set.set(node, null)
+
+    # First tell bottom panel to show.
+    self.node_select_status_changed.emit(self.selected_nodes_set)
+    # Then tell it to focus/scroll.
+    self.node_slot_being_clicked.emit(node, slot)

@@ -40,3 +40,13 @@ func on_GraphEditor_NodeSelectStatusChanged(selected_nodes_set: Dictionary[Music
 ## Connected in [code]plugin.gd[/code].
 func on_GraphEditor_SelectedNodeHadChanging(selected_nodes_set: Dictionary[MusicGraphNode, Variant]):
     return self.on_GraphEditor_NodeSelectStatusChanged(selected_nodes_set)
+
+## Connected in [code]plugin.gd[/code].
+func on_GraphEditor_NodeSlotBeingClicked(node: MusicGraphNode, slot: StrategySlot):
+    if self.slot_control_bar.info_from_node == null:
+        self.slot_control_bar.generateControlFromNode(node)
+
+    # If same node:
+    if self.slot_control_bar.info_from_node == node:
+        var index = node.node_store.strategy_slots.find(slot)
+        self.slot_control_bar.focusOnNodeByIndex(index)
