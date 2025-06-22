@@ -4,10 +4,11 @@ extends VBoxContainer
 
 var slot__stored: StrategySlot
 
-var title: Label:
+var title: LineEdit:
     get: return $Title
 
 func _notification(what: int) -> void: return self.__onNotification__(what)
+func _ready() -> void: return self.__onReady__()
 
 ## Since this scene would be called by [code]PackedScene::instantiate[/code],
 ##  so all params are set to optional.
@@ -17,8 +18,52 @@ func _init(slot: StrategySlot = null) -> void:
         self.slot__stored = slot
 
     # UI.
-    self.add_theme_constant_override("separation", 4 * util.editor_scale)
-    self.loadUIFromStorage() # If possible.
+    self.loadUIFromStorage(slot) # If possible.
+
+## Must be called to init the slot information and UI logic.
+func init(slot: StrategySlot) -> void:
+    self.slot__stored = slot
+    self.initTitleLineEdit()
+    self.initEvalTypeDropdown()
+    self.loadUIFromStorage()
+
+#region UI init.
+const dropdown_options__eval_type := [
+    {"name": ""},
+]
+
+## By default, it is not editable.
+## Editable only when being double-clicked.
+func initTitleLineEdit():
+    # But for global input, not being able to change.
+    if self.slot__stored.type == StrategySlot.EvalType.global_input:
+        self.title.tooltip_text = "Global Input cannot be renamed"
+    else:
+        self.title.tooltip_text = "Double-Click to change name"
+        self.title.connect(
+            "gui_input",
+            func(event: InputEvent):
+                if event is InputEventMouseButton:
+                    if event.double_click and event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
+                        self.title.editable = true
+                        self.title.grab_focus()
+                        self.title.caret_column = self.title.text.length()
+        )
+        self.title.connect(
+            "focus_exited",
+            func():
+                self.title.editable = false
+                self.slot__stored.title = self.title.text
+        )
+        self.title.connect(
+            "text_submitted",
+            func(new_text: String):
+                self.slot__stored.title = self.title.text
+        )
+
+func initEvalTypeDropdown():
+    pass
+#endregion
 
 ## Try load from the UI info.
 ## Abort when [code]self.slot__stored[/code] is null.[br]
@@ -29,7 +74,13 @@ func loadUIFromStorage(slot: StrategySlot = null):
     if self.slot__stored == null: return
 
     # Load.
-    self.title.text = self.slot__stored.type__description
+    self.title.text = self.slot__stored.title if self.slot__stored.title != "" \
+                 else self.slot__stored.type__description
+
+func __onReady__():
+    self.add_theme_constant_override("separation", 4 * util.editor_scale)
+    #self.initTitleLineEdit()
+    #self.initEvalTypeDropdown()
 
 func __onNotification__(reason):
     match reason:

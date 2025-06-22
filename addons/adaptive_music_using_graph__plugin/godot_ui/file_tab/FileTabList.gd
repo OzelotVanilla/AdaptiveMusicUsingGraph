@@ -27,7 +27,7 @@ var selected_files: Array[AMUGResource]:
 
 ## Open an AMUG resource file. [br]
 ## Return the index of opened file.
-func open(file: AMUGResource) -> int:
+func open(file: AMUGResource, should_switch_to: bool = false) -> int:
     ## The index to select.
     var index: int
 
@@ -37,6 +37,9 @@ func open(file: AMUGResource) -> int:
     else:
         index = self.addTab(file)
         self.file_index_dict.set(file, index)
+
+    # See if need to switch to the newly opened tab.
+    if should_switch_to: self.switchToTabAt(index)
 
     self.file_tab_list_changed.emit(FileTabListChangeInfo.from(self))
     return index

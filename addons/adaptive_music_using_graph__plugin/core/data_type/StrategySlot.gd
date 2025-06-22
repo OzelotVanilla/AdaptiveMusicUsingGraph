@@ -1,9 +1,13 @@
+@tool
 class_name StrategySlot
 extends Resource
 ## Class for storing the after-playing decision for a node.
 ##
 ## The [code]PortLocation[/code] is the [i]slot[/i]'s position of Godot.
 # End of class document.
+
+## When the MusicGraphNode need to reload UI.
+signal slot_changed(slot: StrategySlot)
 
 enum PortLocation
 {
@@ -12,14 +16,14 @@ enum PortLocation
     both
 }
 
-## The decision type of the slot.[br]
+## The evaluation type of the slot.[br]
 ## For the in-path connected into main input, the precedence of the evaluation is:[br]
 ## 1. status_change. [br]
 ## 2. expression. [br]
 ## 3. default. [br]
-enum Type
+enum EvalType
 {
-    ## Type is not-set-yet.
+    ## EvalType is not-set-yet.
     none,
     ## For the global input path.
     global_input,
@@ -35,13 +39,13 @@ enum Type
 
 var type__description: StringName: get = getTypeDescription
 
-## Index of the slot. Different for left/right side.
-@export var index: int
+# ## Index of the slot. Different for left/right side.
+#@export var index: int
 
 ## The location of the slot on the node.
 @export var location: PortLocation
 
-@export var type: Type
+@export var type: EvalType
 
 const default_connection_category = 0
 ## `type_left`/`type_right` for the slot. By default, set to 0 in this project.
@@ -57,23 +61,35 @@ const default_icon_path = ""
 ## EditorIcon path of the slot's icon.
 @export_dir var icon_path: String = default_icon_path
 
+## Title displayed in the slot.
+@export var title: String = "":
+    set(value):
+        if title == value: return
+
+        # If changed
+        title = value
+        self.slot_changed.emit(self)
+
+
 const list__revertable_properties: Array[StringName] = [
     "connection_category", "colour", "icon_path"
 ]
 
 func _init(
-    index: int,
+    #index: int,
     location: PortLocation,
-    type: Type = Type.none,
+    type: EvalType = EvalType.none,
     connection_category: int = self.default_connection_category,
     colour: Color = self.default_colour,
-    icon_or_path = null
+    icon_or_path = null,
+    title: String = ""
 ) -> void:
-    self.index = index
+    #self.index = index
     self.location = location
     self.type = type
     self.connection_category = connection_category
     self.colour = colour
+    self.title = title if title != "" else self.type__description
 
     if icon_or_path != null and icon_or_path != "":
         if    icon_or_path is Texture2D: self.icon = icon_or_path
@@ -94,7 +110,7 @@ func _to_string() -> String:
 
     return str(
         "StrategySlot@{",
-        "index: ", self.index, ", ",
+        #"index: ", self.index, ", ",
         "location: \"", PortLocation.find_key(self.location), "\"",
         ", " if appending.length() > 0 else "",
         "}"
@@ -102,20 +118,20 @@ func _to_string() -> String:
 
 func getTypeDescription():
     match self.type:
-        StrategySlot.Type.none:
+        StrategySlot.EvalType.none:
             return "Not-Set-Yet"
 
-        StrategySlot.Type.global_input:
+        StrategySlot.EvalType.global_input:
             return "Input"
 
-        StrategySlot.Type.status_change:
+        StrategySlot.EvalType.status_change:
             return "Status"
 
-        StrategySlot.Type.expression:
+        StrategySlot.EvalType.expression:
             return "Expr"
 
-        StrategySlot.Type.default:
+        StrategySlot.EvalType.default:
             return "Otherwise"
 
-        StrategySlot.Type.through:
+        StrategySlot.EvalType.through:
             return "Go-Through"

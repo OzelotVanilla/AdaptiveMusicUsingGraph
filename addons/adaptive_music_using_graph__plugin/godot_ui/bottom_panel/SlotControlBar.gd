@@ -19,13 +19,21 @@ var message__too_many_node_selected: Label:
         label.text = "Select only one node to adjust slots."
         return label
 
+## Record the reference to the node which provide info for the UI.
+var info_from_node: MusicGraphNode
+
 func generateControlFromNode(node: MusicGraphNode):
     self.clear()
+    self.info_from_node = node
 
     for slot in node.node_store.strategy_slots:
         var slot_control: SlotControl = slot_control_scene.instantiate()
-        slot_control.loadUIFromStorage(slot)
+        slot_control.init(slot)
         self.add_child(slot_control)
+
+func focusOnNodeByIndex(index: int):
+    var node: SlotControl = self.get_child(index)
+    node.title.grab_focus()
 
 func showSelectNodeToStart():
     self.clear()
@@ -36,6 +44,7 @@ func showTooManyNodesSelected():
     self.add_child(self.message__too_many_node_selected)
 
 func clear():
+    self.info_from_node = null
     for c in self.get_children():
         self.remove_child(c)
         c.queue_free()
