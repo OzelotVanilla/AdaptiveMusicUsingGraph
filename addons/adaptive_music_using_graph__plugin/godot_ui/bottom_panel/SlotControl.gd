@@ -7,6 +7,9 @@ var slot__stored: StrategySlot
 var title: LineEdit:
     get: return $Title
 
+var eval_type_dropdown: OptionButton:
+    get: return $MarginContainer/GridContainer/EvalTypeDropdown
+
 func _notification(what: int) -> void: return self.__onNotification__(what)
 func _ready() -> void: return self.__onReady__()
 
@@ -28,9 +31,22 @@ func init(slot: StrategySlot) -> void:
     self.loadUIFromStorage()
 
 #region UI init.
-const dropdown_options__eval_type := [
-    {"name": ""},
-]
+## Consist of [param name]
+var dropdown_options__eval_type: Array[Dictionary]:
+    get:
+        var i := -1
+        var result: Array[Dictionary] = []
+        for eval_type in StrategySlot.EvalType.values():
+            i += 1
+            if eval_type == StrategySlot.EvalType.global_input:
+                continue
+            else:
+                result.push_back({
+                    "name": StrategySlot.EvalType.find_key(eval_type),
+                    "value": eval_type
+                })
+
+        return result
 
 ## By default, it is not editable.
 ## Editable only when being double-clicked.
@@ -53,16 +69,37 @@ func initTitleLineEdit():
             "focus_exited",
             func():
                 self.title.editable = false
-                self.slot__stored.title = self.title.text
+                # Prevent setting default text to title.
+                if self.slot__stored.title != self.title.text:
+                    self.slot__stored.title = self.title.text
         )
         self.title.connect(
             "text_submitted",
             func(new_text: String):
                 self.slot__stored.title = self.title.text
+                # Prevent setting default text to title.
+                if self.slot__stored.title != self.title.text:
+                    self.slot__stored.title = self.title.text
         )
 
 func initEvalTypeDropdown():
-    pass
+    var dropdown = self.eval_type_dropdown
+    dropdown.clear()
+
+    # If it is global-input, then, cannot change.
+    if self.slot__stored.type == StrategySlot.EvalType.global_input:
+        dropdown.add_item("Input", StrategySlot.EvalType.global_input)
+        dropdown.select(0)
+        dropdown.disabled = true
+        dropdown.tooltip_text = "Cannot change type of global input slot."
+    else:
+        for item in self.dropdown_options__eval_type:
+            dropdown.add_item(item["name"], item["value"])
+        dropdown.connect(
+            "item_selected",
+            func(index: int):
+                self.slot__stored.type = dropdown.get_item_id(index)
+        )
 #endregion
 
 ## Try load from the UI info.
@@ -74,8 +111,8 @@ func loadUIFromStorage(slot: StrategySlot = null):
     if self.slot__stored == null: return
 
     # Load.
-    self.title.text = self.slot__stored.title if self.slot__stored.title != "" \
-                 else self.slot__stored.type__description
+    self.title.text = self.slot__stored.title
+    self.eval_type_dropdown.select(self.eval_type_dropdown.get_item_index(self.slot__stored.type))
 
 func __onReady__():
     self.add_theme_constant_override("separation", 4 * util.editor_scale)

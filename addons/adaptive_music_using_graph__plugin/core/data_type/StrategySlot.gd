@@ -39,13 +39,16 @@ enum EvalType
 
 var type__description: StringName: get = getTypeDescription
 
-# ## Index of the slot. Different for left/right side.
-#@export var index: int
 
 ## The location of the slot on the node.
 @export var location: PortLocation
 
-@export var type: EvalType
+@export var type: EvalType:
+    set(value):
+        if type == value: return
+
+        type = value
+        self.slot_changed.emit(self)
 
 const default_connection_category = 0
 ## `type_left`/`type_right` for the slot. By default, set to 0 in this project.
@@ -69,6 +72,10 @@ const default_icon_path = ""
         # If changed
         title = value
         self.slot_changed.emit(self)
+    get():
+        # If no title, return default.
+        if title == "": return self.type__description
+        else: return title
 
 
 const list__revertable_properties: Array[StringName] = [
@@ -76,7 +83,6 @@ const list__revertable_properties: Array[StringName] = [
 ]
 
 func _init(
-    #index: int,
     location: PortLocation,
     type: EvalType = EvalType.none,
     connection_category: int = self.default_connection_category,
@@ -84,7 +90,6 @@ func _init(
     icon_or_path = null,
     title: String = ""
 ) -> void:
-    #self.index = index
     self.location = location
     self.type = type
     self.connection_category = connection_category
@@ -110,7 +115,7 @@ func _to_string() -> String:
 
     return str(
         "StrategySlot@{",
-        #"index: ", self.index, ", ",
+        "title: ", self.title, ", ",
         "location: \"", PortLocation.find_key(self.location), "\"",
         ", " if appending.length() > 0 else "",
         "}"

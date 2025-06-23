@@ -83,7 +83,7 @@ func reloadSpecificSlotFromStorage(index: int):
 
 func getSlotShowingContent(slot: StrategySlot) -> Control:
     var slot_content = Label.new()
-    slot_content.text = slot.title if slot.title != null else slot.type__description
+    slot_content.text = slot.title
     return slot_content
 
 func clearAllSlots() -> void:
