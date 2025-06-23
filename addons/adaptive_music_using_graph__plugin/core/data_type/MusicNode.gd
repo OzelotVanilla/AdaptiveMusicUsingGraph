@@ -43,7 +43,6 @@ func _init(
     self.strategy_slots.sort_custom(func(a: StrategySlot, b: StrategySlot): a.index < b.index)
 
     # NOT stored as Resource.
-    #self.slot_index_counter = self.strategy_slots[-1].index + 1
     self.resource_name = str("MusicNode ", name if name.length() > 0 else str("#", id))
 
 func _to_string() -> String:
@@ -68,7 +67,6 @@ func addSlot(port_location: StrategySlot.PortLocation) -> StrategySlot:
         StrategySlot.PortLocation.both:
             slot_type = StrategySlot.EvalType.through
 
-    #var result = StrategySlot.new(index, port_location, slot_type)
     var result = StrategySlot.new(port_location, slot_type)
     self.strategy_slots.append(result)
     return result
