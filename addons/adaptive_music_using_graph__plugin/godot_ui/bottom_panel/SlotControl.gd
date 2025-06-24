@@ -31,31 +31,27 @@ func init(slot: StrategySlot) -> void:
     self.loadUIFromStorage()
 
 #region UI init.
-## Consist of [param name]
-var dropdown_options__eval_type: Array[Dictionary]:
+## The int value of the members in StrategySlot.EvalType, except [code]global_input[/code].
+var dropdown_options__eval_type: Array[StrategySlot.EvalType]:
     get:
-        var i := -1
-        var result: Array[Dictionary] = []
+        var result: Array[StrategySlot.EvalType] = []
         for eval_type in StrategySlot.EvalType.values():
-            i += 1
-            if eval_type == StrategySlot.EvalType.global_input:
-                continue
-            else:
-                result.push_back({
-                    "name": StrategySlot.EvalType.find_key(eval_type),
-                    "value": eval_type
-                })
+            match eval_type:
+                StrategySlot.EvalType.global_input: continue
+                StrategySlot.EvalType.through:      continue
+                _: result.push_back(eval_type)
 
         return result
 
 ## By default, it is not editable.
-## Editable only when being double-clicked.
+## Editable only when being double-clicked.[br]
+## Note: For every data-changing action, may better follow with a UI-reload.
 func initTitleLineEdit():
     # But for global input, not being able to change.
     if self.slot__stored.type == StrategySlot.EvalType.global_input:
-        self.title.tooltip_text = "Global Input cannot be renamed"
+        self.title.tooltip_text = "Global Input cannot be renamed."
     else:
-        self.title.tooltip_text = "Double-Click to change name"
+        self.title.tooltip_text = "Double-Click to change name."
         self.title.connect(
             "gui_input",
             func(event: InputEvent):
@@ -72,6 +68,7 @@ func initTitleLineEdit():
                 # Prevent setting default text to title.
                 if self.slot__stored.title != self.title.text:
                     self.slot__stored.title = self.title.text
+                self.loadUIFromStorage.call_deferred()
         )
         self.title.connect(
             "text_submitted",
@@ -80,6 +77,7 @@ func initTitleLineEdit():
                 # Prevent setting default text to title.
                 if self.slot__stored.title != self.title.text:
                     self.slot__stored.title = self.title.text
+                self.loadUIFromStorage.call_deferred()
         )
 
 func initEvalTypeDropdown():
@@ -87,18 +85,27 @@ func initEvalTypeDropdown():
     dropdown.clear()
 
     # If it is global-input, then, cannot change.
-    if self.slot__stored.type == StrategySlot.EvalType.global_input:
-        dropdown.add_item("Input", StrategySlot.EvalType.global_input)
+    if     self.slot__stored.type == StrategySlot.EvalType.global_input \
+      or   self.slot__stored.type == StrategySlot.EvalType.through:
+        var type = self.slot__stored.type
+        dropdown.add_item(StrategySlot.getTypeReadable(type), type)
         dropdown.select(0)
         dropdown.disabled = true
-        dropdown.tooltip_text = "Cannot change type of global input slot."
+        dropdown.tooltip_text = str(
+            StrategySlot.getTypeDescription(type),
+            " Cannot be changed."
+        )
     else:
-        for item in self.dropdown_options__eval_type:
-            dropdown.add_item(item["name"], item["value"])
+        for eval_type in self.dropdown_options__eval_type:
+            dropdown.add_item(StrategySlot.getTypeReadable(eval_type), eval_type)
+            var index = dropdown.get_item_index(eval_type)
+            dropdown.set_item_tooltip(index, StrategySlot.getTypeDescription(eval_type))
         dropdown.connect(
             "item_selected",
             func(index: int):
                 self.slot__stored.type = dropdown.get_item_id(index)
+                # If the title is not set yet, need to update title text.
+                self.loadUIFromStorage.call_deferred()
         )
 #endregion
 
