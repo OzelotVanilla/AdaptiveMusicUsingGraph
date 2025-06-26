@@ -1,9 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://fgdjucwwpyxp"]
+[gd_scene load_steps=7 format=3 uid="uid://fgdjucwwpyxp"]
 
 [ext_resource type="Script" uid="uid://wnju0q4yul4r" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/MusicGraphMainPanel.gd" id="1_k18om"]
 [ext_resource type="PackedScene" uid="uid://dg4wxo8whwmri" path="res://addons/adaptive_music_using_graph__plugin/graph_editor/MusicGraphEditor.tscn" id="2_0kaly"]
 [ext_resource type="Script" uid="uid://bavhemeopxvqt" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/TopButtonBar.gd" id="2_ly262"]
 [ext_resource type="Script" uid="uid://cwjfl00tnjdhq" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/file_tab/FileTabList.gd" id="3_cpf4o"]
+[ext_resource type="Script" uid="uid://dfh3wh34r7bpi" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/ParamList.gd" id="4_sm6g3"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sm6g3"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+bg_color = Color(0.1, 0.1, 0.1, 0.6)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 5
 
 [node name="MusicGraphMainPanel" type="MarginContainer"]
 anchors_preset = 15
@@ -50,13 +63,14 @@ layout_mode = 2
 size_flags_vertical = 3
 script = ExtResource("3_cpf4o")
 
-[node name="ParamList" type="VBoxContainer" parent="VBoxContainer/HSplit/FileTabAndParamList"]
+[node name="PanelContainer" type="PanelContainer" parent="VBoxContainer/HSplit/FileTabAndParamList"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_sm6g3")
+
+[node name="ParamList" type="VBoxContainer" parent="VBoxContainer/HSplit/FileTabAndParamList/PanelContainer"]
 custom_minimum_size = Vector2(0, 200)
 layout_mode = 2
-
-[node name="Panel" type="Panel" parent="VBoxContainer/HSplit/FileTabAndParamList/ParamList"]
-layout_mode = 2
-size_flags_vertical = 3
+script = ExtResource("4_sm6g3")
 
 [node name="EditorAndBreif" type="VBoxContainer" parent="VBoxContainer/HSplit"]
 layout_mode = 2
@@ -82,6 +96,7 @@ layout_mode = 2
 [connection signal="node_deselected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onDeselectingNode"]
 [connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_NodeSelectStatusChanged"]
 [connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/TopButtonBar" method="onSelectingNodeStatusChanged"]
+[connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/PanelContainer/ParamList" method="onSelectingNodeStatusChanged"]
 [connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]
 [connection signal="node_slot_being_clicked" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_NodeSlotBeingClicked"]
 [connection signal="selected_node_had_changing" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_SelectedNodeHadChanging"]
