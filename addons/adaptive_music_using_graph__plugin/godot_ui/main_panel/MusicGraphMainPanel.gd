@@ -6,11 +6,17 @@ extends MarginContainer
 @onready var top_button_bar: TopButtonBar = $VBoxContainer/TopButtonBar
 @onready var search_bar: LineEdit = $VBoxContainer/HSplit/FileTabAndParamList/FileTab/Search
 @onready var file_tab: FileTabList = $VBoxContainer/HSplit/FileTabAndParamList/FileTab/FileTabList
+@onready var param_list_panel_container: PanelContainer = $VBoxContainer/HSplit/FileTabAndParamList/PanelContainer
 
 func _ready() -> void: return self.__onReady__()
 
 func __onReady__():
     self.top_button_bar.initButtons.bind(graph_editor).call_deferred()
+    # Add background colour to the ParamList.
+    self.param_list_panel_container.add_theme_stylebox_override(
+        "panel",
+        get_theme_stylebox("panel", "ItemList")
+    )
 
 func handleEditRequestOf(object: Object):
     if object is AMUGResource:

@@ -14,7 +14,11 @@ extends Resource
 @export var name: String = ""
 
 ## The music played by this node.
-@export var music_segment: AudioStream
+@export var music_segment_path: StringName = ""
+
+var music_segment: AudioStream:
+    get:
+        return util.loadAudioStreamFromFile(self.music_segment_path)
 
 ## The offset of the position in the GraphEdit's UI.
 ## Not required in `_init`.
@@ -51,6 +55,7 @@ func _to_string() -> String:
         "id: ", self.id, ", ",
         "name: \"", self.name, "\", ",
         "strategy_slots: \"", self.strategy_slots, "\", ",
+        "music_segment_path: \"", self.music_segment_path, "\", ",
         "}"
     )
 
