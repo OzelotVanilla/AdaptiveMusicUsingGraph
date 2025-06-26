@@ -59,3 +59,32 @@ static func getKeyPressShortcutFromText(text: String) -> Shortcut:
     shortcut.events.append(event)
     return shortcut
 #endregion
+
+#region Audio load related
+static func loadAudioStreamFromFile(path: String, file_type: String = ""):
+    if path == "": return null
+
+    var audio_stream: AudioStream = null
+    var extension = file_type if file_type != "" else path.get_extension().to_lower()
+
+    match extension:
+        "mp3":
+            audio_stream = AudioStreamMP3.load_from_file(path)
+
+        "wav":
+            audio_stream = AudioStreamWAV.load_from_file(path)
+
+        "ogg":
+            audio_stream = AudioStreamOggVorbis.load_from_file(path)
+
+        "":
+            push_error(
+                "util::loadAudioStreamFromFile No extension found: ", path, ". ",
+                "Please add extension to file, or provide it by param."
+            )
+
+        _:
+            push_error("util::loadAudioStreamFromFile Unsupported extension: ", extension)
+
+    return audio_stream
+#endregion
