@@ -8,7 +8,11 @@ var title: LineEdit:
     get: return $Title
 
 var eval_type_dropdown: OptionButton:
-    get: return $MarginContainer/GridContainer/EvalTypeDropdown
+    get: return $FixedOptionContainer/GridContainer/EvalTypeDropdown
+
+## The type-specified control panel for slot.
+var specific_setting_panel: MarginContainer:
+    get: return $SpecificSettingPanel
 
 func _notification(what: int) -> void: return self.__onNotification__(what)
 func _ready() -> void: return self.__onReady__()
@@ -120,6 +124,81 @@ func loadUIFromStorage(slot: StrategySlot = null):
     # Load.
     self.title.text = self.slot__stored.title
     self.eval_type_dropdown.select(self.eval_type_dropdown.get_item_index(self.slot__stored.type))
+    self.loadSpecificPanel()
+
+
+#region Generation of slot-specific control panel (UI reload).
+## Loading of slot-specific control panel.
+func loadSpecificPanel():
+    match self.slot__stored.type:
+        StrategySlot.EvalType.none: self.loadSlotPanel__None()
+        StrategySlot.EvalType.status_change: self.loadSlotPanel__Status()
+        StrategySlot.EvalType.expression_group: self.loadSlotPanel__Expression()
+        StrategySlot.EvalType.default: self.loadSlotPanel__Otherwise()
+
+func loadSlotPanel__None():
+    var specific_panel = self.specific_setting_panel
+    for c in specific_panel.get_children(): specific_panel.remove_child(c)
+
+func loadSlotPanel__Status():
+    var specific_panel = self.specific_setting_panel
+    for c in specific_panel.get_children(): specific_panel.remove_child(c)
+
+    var grid_panel = GridContainer.new()
+    grid_panel.columns = 2
+    specific_panel.add_child(grid_panel)
+
+    var status_label := Label.new()
+    status_label.text = "Status"
+    grid_panel.add_child(status_label)
+
+    var status_dropdown = OptionButton.new()
+    status_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    status_dropdown.connect(
+        "item_selected",
+        func(index: int):
+            status_dropdown.tooltip_text = status_dropdown.get_item_text(index)
+    )
+    grid_panel.add_child(status_dropdown)
+
+func loadSlotPanel__Expression():
+    var specific_panel = self.specific_setting_panel
+    for c in specific_panel.get_children(): specific_panel.remove_child(c)
+
+    var code_editor = CodeEdit.new()
+    code_editor.custom_minimum_size = Vector2(400, 0)
+    code_editor.auto_brace_completion_enabled = true
+    code_editor.auto_brace_completion_highlight_matching = true
+    code_editor.code_completion_enabled = true
+    specific_panel.add_child(code_editor)
+
+    var syntax_highlighter = GDScriptSyntaxHighlighter.new()
+    code_editor.syntax_highlighter = syntax_highlighter
+
+
+func loadSlotPanel__Otherwise():
+    var specific_panel = self.specific_setting_panel
+    for c in specific_panel.get_children(): specific_panel.remove_child(c)
+
+    var grid_panel = GridContainer.new()
+    grid_panel.columns = 2
+    specific_panel.add_child(grid_panel)
+
+    var threshold_label := Label.new()
+    threshold_label.text = "Threshold"
+    threshold_label.tooltip_text = str(
+        "If all other evaluations got a value lower than this, ",
+        "this slot will be chosen."
+    )
+    grid_panel.add_child(threshold_label)
+
+    var threshold_input := SpinBox.new()
+    threshold_input.max_value = 1
+    threshold_input.min_value = 0
+    threshold_input.step = 0.005
+    threshold_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    grid_panel.add_child(threshold_input)
+#endregion
 
 func __onReady__():
     self.add_theme_constant_override("separation", 4 * util.editor_scale)

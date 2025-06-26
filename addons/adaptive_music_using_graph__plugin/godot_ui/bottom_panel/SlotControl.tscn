@@ -18,22 +18,30 @@ placeholder_text = "Slot Type"
 alignment = 1
 editable = false
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="FixedOptionContainer" type="MarginContainer" parent="."]
 layout_mode = 2
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 8
 theme_override_constants/margin_bottom = 4
 
-[node name="GridContainer" type="GridContainer" parent="MarginContainer"]
+[node name="GridContainer" type="GridContainer" parent="FixedOptionContainer"]
 layout_mode = 2
 columns = 2
 
-[node name="EvalTypeLabel" type="Label" parent="MarginContainer/GridContainer"]
+[node name="EvalTypeLabel" type="Label" parent="FixedOptionContainer/GridContainer"]
 layout_mode = 2
 text = "Evaluation Type"
 
-[node name="EvalTypeDropdown" type="OptionButton" parent="MarginContainer/GridContainer"]
+[node name="EvalTypeDropdown" type="OptionButton" parent="FixedOptionContainer/GridContainer"]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 size_flags_horizontal = 3
+
+[node name="SpecificSettingPanel" type="MarginContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
