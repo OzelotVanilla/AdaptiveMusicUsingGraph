@@ -2,8 +2,10 @@
 class_name AdaptiveMusicUsingGraph
 extends EditorPlugin
 
-func _enter_tree() -> void: return self.__onEnteringSceneTree__()
-func _exit_tree() -> void:  return self.__onExitingSceneTree__()
+func _enable_plugin() -> void:  return self.__onEnablingPlugin__()
+func _disable_plugin() -> void: return self.__onDisablingPlugin__()
+func _enter_tree() -> void:     return self.__onEnteringSceneTree__()
+func _exit_tree() -> void:      return self.__onExitingSceneTree__()
 func _has_main_screen() -> bool:      return true
 func _get_plugin_name() -> String:    return self.main_panel__tab_title
 func _get_plugin_icon() -> Texture2D: return util.getEditorIcon("CanvasLayer")
@@ -25,6 +27,13 @@ const music_graph_bottom_panel_scene := preload("res://addons/adaptive_music_usi
 var music_graph_bottom_panel: MusicGraphBottomPanel = self.music_graph_bottom_panel_scene.instantiate()
 #endregion
 
+#region For runtime.
+## The name of the variable (which will be auto-loaded).
+const runtime__name := "amug"
+## Path of the class holding the runtime.
+const runtime__path := "res://addons/adaptive_music_using_graph__plugin/runtime/AMUGRuntime.gd"
+#endregion
+
 #region For modifying editor existing functionality.
 var filesystem_popup_helper : FileSystemCreateNewHelper
 #endregion
@@ -32,6 +41,14 @@ var filesystem_popup_helper : FileSystemCreateNewHelper
 func setVisibility(value: bool):
     if self.music_graph_main_panel != null:
         self.music_graph_main_panel.visible = value
+
+func __onEnablingPlugin__():
+    # Add the runtime.
+    self.registerRuntimeToAutoload()
+
+func __onDisablingPlugin__():
+    # Remove the runtime
+    self.unregisterRuntimeToAutoload()
 
 func __onEnteringSceneTree__():
     # Main panel.
@@ -77,3 +94,28 @@ func __onExitingSceneTree__():
 func __onReceiveEditRequest__(object: Object):
     self.music_graph_main_panel.handleEditRequestOf(object)
     self.make_bottom_panel_item_visible(self.music_graph_bottom_panel)
+
+func registerRuntimeToAutoload():
+    var project_setting__path = str("autoload/", self.runtime__name)
+
+    # If not exist.
+    if not ProjectSettings.has_setting(project_setting__path):
+        self.add_autoload_singleton(self.runtime__name, self.runtime__path)
+        ProjectSettings.save()
+    # If something called "amug" already exists.
+    else:
+        #TODO Customise of runtime global symbol's name.
+        push_error(
+            "[plugin] Adaptive Music using Graph", ": ",
+            "Failed adding project auto-load. Detected there is already global symbol named as `amug`. ",
+            "Please rename that."
+        )
+
+func unregisterRuntimeToAutoload():
+    var project_setting__path = str("autoload/", self.runtime__name)
+
+    # If added.
+    if     ProjectSettings.has_setting(project_setting__path) \
+       and ProjectSettings.get_setting(project_setting__path) == str("*", self.runtime__path):
+        self.remove_autoload_singleton(self.runtime__name)
+        ProjectSettings.save()
