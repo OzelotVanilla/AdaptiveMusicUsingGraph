@@ -14,6 +14,10 @@ config/name="Adaptive Music using Graph"
 config/features=PackedStringArray("4.5", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+amug="*res://addons/adaptive_music_using_graph__plugin/runtime/AMUGRuntime.gd"
+
 [editor_plugins]
 
 enabled=PackedStringArray("res://addons/adaptive_music_using_graph__plugin/plugin.cfg")
