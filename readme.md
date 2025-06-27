@@ -12,3 +12,9 @@ Instead, it uses suggestions given by AI,
  and each code is checked.
 
 This plugin uses Godot Editor's icon.
+
+## Directory Structure
+
+* `core/`: The essential data type and shared logic.
+* `editor/`: Only runs within Godot editor.
+* `runtime/`: Only runs in game, or being used for game logic.
