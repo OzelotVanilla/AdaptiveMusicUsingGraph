@@ -19,9 +19,9 @@ const file_suffix := ".amug"
 
 #region For UI.
 # Note: CANNOT use `@onready` and assignment for the panel.
-const music_graph_main_panel_scene := preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/main_panel/MusicGraphMainPanel.tscn")
+const music_graph_main_panel_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/ui/main_panel/MusicGraphMainPanel.tscn")
 var music_graph_main_panel: MusicGraphMainPanel = self.music_graph_main_panel_scene.instantiate()
-const music_graph_bottom_panel_scene := preload("res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/MusicGraphBottomPanel.tscn")
+const music_graph_bottom_panel_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/MusicGraphBottomPanel.tscn")
 var music_graph_bottom_panel: MusicGraphBottomPanel = self.music_graph_bottom_panel_scene.instantiate()
 #endregion
 

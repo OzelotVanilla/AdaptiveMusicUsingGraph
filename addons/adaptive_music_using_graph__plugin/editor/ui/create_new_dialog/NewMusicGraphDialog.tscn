@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bunfnqpq2de4n"]
 
-[ext_resource type="Script" uid="uid://77jlsuc7wwpi" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/create_new_dialog/NewMusicGraphDialog.gd" id="1_773yx"]
+[ext_resource type="Script" uid="uid://77jlsuc7wwpi" path="res://addons/adaptive_music_using_graph__plugin/editor/ui/create_new_dialog/NewMusicGraphDialog.gd" id="1_773yx"]
 
 [node name="NewMusicGraphDialog" type="ConfirmationDialog"]
 auto_translate_mode = 2
