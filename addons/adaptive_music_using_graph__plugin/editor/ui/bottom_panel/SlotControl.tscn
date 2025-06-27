@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bo87gn5t634f4"]
 
-[ext_resource type="Script" uid="uid://orvpqjpv76x" path="res://addons/adaptive_music_using_graph__plugin/godot_ui/bottom_panel/SlotControl.gd" id="1_y2prq"]
+[ext_resource type="Script" uid="uid://orvpqjpv76x" path="res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/SlotControl.gd" id="1_y2prq"]
 
 [node name="SlotControl" type="VBoxContainer"]
 anchors_preset = 15
