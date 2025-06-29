@@ -62,6 +62,9 @@ var operation_mode: OperationMode:
         #print_debug(str("Set MusicGraphEditor's operation_mode to \"", OperationMode.find_key(m), "\"."))
         operation_mode = m
 
+## The dict storing mapping from node_id to UI's MusicGraphNode.
+var ui_node_dict: Dictionary[int, MusicGraphNode] = {}
+
 ## The set of current selected music graph node.
 var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
 
@@ -112,9 +115,11 @@ func loadGraphFromStore():
     # TODO
     self.clearUI()
 
-    var node_array := self.graph_store.node_array
+    # Load nodes.
     for node in self.graph_store.node_array:
-        self.add_child(MusicGraphNode.new(node))
+        var graph_node = MusicGraphNode.new(node)
+        self.add_child(graph_node)
+        self.ui_node_dict.set(node.id, graph_node)
 
 func clearUI():
     self.clear_connections()
@@ -123,6 +128,7 @@ func clearUI():
         c.queue_free()
 
     self.selected_nodes_set.clear()
+    self.ui_node_dict.clear()
     self.node_select_status_changed.emit(self.selected_nodes_set)
 
 ## Add new node.
@@ -147,6 +153,7 @@ func addNode():
     # UI.
     # This `call_deferred` is required, to avoid error when removing the node.
     self.add_child.bind(new_graph_node).call_deferred()
+    self.ui_node_dict[new_node_id] = new_graph_node
 
     # Data.
     self.graph_store.addNode(new_node)
@@ -171,6 +178,7 @@ func removeNode(node: MusicGraphNode) -> void:
     # Then delete.
     # UI.
     self.remove_child.bind(node).call_deferred()
+    self.ui_node_dict.erase(node.node_store.id)
     # Data.
     self.graph_store.removeNode(node.node_store)
 
