@@ -35,4 +35,4 @@ static func getIDReassignedMusicGraphOf(graph: MusicGraph) -> MusicGraph:
         e.to_node   = node_new_id_dict[e.to_node]
         new_edge_array.append(e)
 
-    return MusicGraph.new(new_node_array, new_edge_array)
+    return MusicGraph.new(new_node_array, new_edge_array, graph.starting_node_id)

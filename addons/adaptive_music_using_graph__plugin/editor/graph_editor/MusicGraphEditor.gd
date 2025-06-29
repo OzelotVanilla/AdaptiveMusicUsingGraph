@@ -27,6 +27,13 @@ signal selected_node_had_changing(selected_nodes_set: Dictionary[MusicGraphNode,
 ## When a slot of a [code]MusicGraphNode[/code] is clicked.
 signal node_slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
 
+## When the starting node is being set from a stored MusicGraph.
+## Only emitted positive number,
+##  when a existing [code]MusicNode[/code] is being set as starting node.[br]
+## [code]-1[/code] is emitted if no [code]MusicNode[/code] is set,
+##  which is usual when change to another AMUG file.
+signal starting_node_setted(starting_node_id: int)
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -70,6 +77,11 @@ var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
 
 ## Position of creating new node.
 var new_node_position: Vector2 = Vector2.ZERO
+
+## Stores the starting node being set last time.
+## [code]-1[/code] means no node set yet.[br]
+## Used if the starting node changes, need to change the theme of node.
+var old_starting_node_id: int = -1
 
 @onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
@@ -120,6 +132,10 @@ func loadGraphFromStore():
         var graph_node = MusicGraphNode.new(node)
         self.add_child(graph_node)
         self.ui_node_dict.set(node.id, graph_node)
+
+    # Load Data and UI effect for starting node.
+    self.old_starting_node_id = -1
+    self.setStartingNode(self.graph_store.starting_node_id)
 
 func clearUI():
     self.clear_connections()
@@ -181,6 +197,30 @@ func removeNode(node: MusicGraphNode) -> void:
     self.ui_node_dict.erase(node.node_store.id)
     # Data.
     self.graph_store.removeNode(node.node_store)
+
+func setStartingNode(starting_node_id: int):
+    # Skip meaningless setting.
+    if starting_node_id < 0: # Should detect this first, since may init with -1.
+        self.starting_node_setted.emit(-1)
+        return
+    if self.old_starting_node_id == starting_node_id:
+        return
+
+    ## UI.
+    # See if need to restore old node's theme.
+    var old_starting_node = self.ui_node_dict.get(self.old_starting_node_id)
+    if old_starting_node is MusicGraphNode:
+        old_starting_node.setToNormalStyle()
+
+    # Change targeting node's style.
+    self.old_starting_node_id = starting_node_id
+    var new_starting_node = self.ui_node_dict.get(starting_node_id)
+    if new_starting_node is MusicGraphNode:
+        new_starting_node.setToStartingNodeStyle()
+        self.starting_node_setted.emit(starting_node_id)
+
+    ## Data.
+    self.graph_store.setStartingNode(starting_node_id)
 
 func onSelectingNode(node: GraphElement):
     self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)

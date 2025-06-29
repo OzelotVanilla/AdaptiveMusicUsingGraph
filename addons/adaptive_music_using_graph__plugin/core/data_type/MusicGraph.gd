@@ -13,6 +13,10 @@ var node_dict: Dictionary[int, MusicNode] = {}
 @export var edge_array: Array[MusicEdge]: get = getAllEdges
 var edge_dict: Dictionary[int, MusicEdge] = {}
 
+## Saving the play starting node's id.
+@export var starting_node_id: int = -1
+var starting_node: MusicNode: get = getStartingNode, set = setStartingNode
+
 ## Counter used for new node creation.
 var node_id_counter: int = 0
 
@@ -31,7 +35,8 @@ var adjacent_dict: Dictionary[int, PackedInt64Array] = {}
 
 func _init(
         node_array: Array[MusicNode] = [],
-        edge_array: Array[MusicEdge] = []
+        edge_array: Array[MusicEdge] = [],
+        starting_node_id: int = -1
 ) -> void:
     self.node_dict = {}; for n in node_array: self.node_dict[n.id] = n
     self.edge_dict = {}; for e in edge_array: self.edge_dict[e.id] = e
@@ -52,13 +57,17 @@ func _init(
         edge_array.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
         self.edge_id_counter = edge_array[-1].id + 1
 
+    # Set starting point.
+    self.starting_node_id = starting_node_id
+
 func _to_string() -> String: return self.toString()
 
 func toString():
     return str(
         "MusicGraph@{",
         "node_array: ", self.node_array, ", ",
-        "edge_array: ", self.edge_array,
+        "edge_array: ", self.edge_array, ", ",
+        "starting_node: ", self.starting_node_id,
         "}"
     )
 
@@ -149,3 +158,10 @@ func removeEdge(id_or_edge: Variant):
 
     # Then remove from edge_dict.
     self.edge_dict.erase(edge_id)
+
+func getStartingNode() -> MusicNode:
+    return self.node_dict.get(self.starting_node_id)
+
+## Set the starting node of graph.
+func setStartingNode(id_or_node: Variant):
+    self.starting_node_id = self.getIdOfNode(id_or_node)
