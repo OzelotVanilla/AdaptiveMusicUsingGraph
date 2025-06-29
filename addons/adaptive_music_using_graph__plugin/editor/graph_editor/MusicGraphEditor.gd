@@ -27,6 +27,10 @@ signal selected_node_had_changing(selected_nodes_set: Dictionary[MusicGraphNode,
 ## When a slot of a [code]MusicGraphNode[/code] is clicked.
 signal node_slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
 
+## When the starting node is being set from a stored MusicGraph.
+## Called in [code]self.loadGraphFromStore[/code].
+signal starting_node_being_inited(starting_node_id: int)
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -70,6 +74,11 @@ var selected_nodes_set: Dictionary[MusicGraphNode, Variant] = {}
 
 ## Position of creating new node.
 var new_node_position: Vector2 = Vector2.ZERO
+
+## Stores the starting node being set last time.
+## [code]-1[/code] means no node set yet.[br]
+## Used if the starting node changes, need to change the theme of node.
+var old_starting_node_id: int = -1
 
 @onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
@@ -118,6 +127,8 @@ func loadGraphFromStore():
     var node_array := self.graph_store.node_array
     for node in self.graph_store.node_array:
         self.add_child(MusicGraphNode.new(node))
+
+    self.starting_node_being_inited.emit(self.graph_store.starting_node_id)
 
 func clearUI():
     self.clear_connections()
@@ -179,6 +190,18 @@ func removeNode(node: MusicGraphNode) -> void:
     self.ui_node_dict.erase(node.node_store.id)
     # Data.
     self.graph_store.removeNode(node.node_store)
+
+func setStartingNode(starting_node_id: int):
+    # See if need to restore old node's theme.
+    var old_starting_node = self.ui_node_dict.get(self.old_starting_node_id)
+    if old_starting_node is MusicGraphNode:
+        old_starting_node.setToNormalStyle()
+
+    # Change targeting node's style.
+    self.old_starting_node_id = starting_node_id
+    var new_starting_node = self.ui_node_dict.get(starting_node_id)
+    if new_starting_node is MusicGraphNode:
+        new_starting_node.setToStartingNodeStyle()
 
 func onSelectingNode(node: GraphElement):
     self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
@@ -250,3 +273,6 @@ func onNodeSlotBeingClicked(node: MusicGraphNode, slot: StrategySlot):
     self.node_select_status_changed.emit(self.selected_nodes_set)
     # Then tell it to focus/scroll.
     self.node_slot_being_clicked.emit(node, slot)
+
+func onStartingNodeBeingInited(starting_node_id: int):
+    self.setStartingNode(starting_node_id)

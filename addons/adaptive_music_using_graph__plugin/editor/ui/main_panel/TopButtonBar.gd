@@ -65,8 +65,16 @@ func getTopButtonsConfig():
     {"name": "Add New Out-Slot", "toggle_mode": false, "is_selected": false,
      "on_press": "onAddOutSlotPress",
      "icon_name": "InsertAfter", "shortcut": "o",
-     "description": "Adding new output-only slot to a node. This slot will be evaluated together with others when cursor got in from main input slot."},
+     "description": "Adding new output-only slot to a node. "
+                    + "This slot will be evaluated together with others when cursor got in from main input slot."},
 
+    {"node_type": "VSeparator"},
+    #onSelectStartingNodePress
+
+    {"name": "Select Starting Node", "toggle_mode": false, "is_selected": false,
+     "on_press": "onSelectStartingNodePress",
+     "icon_name": "NewRoot",
+     "description": "Set the selected node as the starting point of the graph."},
 ]
 
 var graph_editor: MusicGraphEditor
@@ -201,7 +209,9 @@ func setEnabilityOfEditorButtons(value: bool):
     self.cache__editor_button_enability = value
 
     for child in self.get_children(): if child is Button:
-        if child.name.begins_with("editor_button__") and child.name not in self.button_enabled_only_when_multiple_node_selected:
+        if   child.name.begins_with("editor_button__") \
+         and child.name not in self.button_enabled_only_when_multiple_node_selected \
+         and child.name not in self.button_enabled_only_when_single_node_selected:
             child.disabled = not value
 
 ## Called after graph_editor is init-ed.
@@ -238,6 +248,11 @@ func onAddOutSlotPress():
 
     self.graph_editor.selected_node_had_changing.emit(self.graph_editor.selected_nodes_set)
 
+func onSelectStartingNodePress():
+    self.graph_editor.setStartingNode(
+        (self.graph_editor.selected_nodes_set.keys()[0] as MusicGraphNode).node_store.id
+    )
+
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.
     self.setEnabilityOfEditorButtons(
@@ -249,8 +264,20 @@ const button_enabled_only_when_multiple_node_selected: Array[StringName] = [
     "editor_button__Add New In-Out-Slot", "editor_button__Add New Out-Slot"
 ]
 
+## Record the node name ([code]name[/code]) here.
+const button_enabled_only_when_single_node_selected: Array[StringName] = [
+    "editor_button__Select Starting Node"
+]
+
 func onSelectingNodeStatusChanged(selected_nodes_set: Dictionary[MusicGraphNode, Variant]) -> void:
+    # Available only when multiple node selected.
     var should_enable_when_multiple_node_selected = selected_nodes_set.size() >= 1
     for button_name in self.button_enabled_only_when_multiple_node_selected:
         var button: Button = self.get_node(NodePath(button_name))
         button.disabled = not should_enable_when_multiple_node_selected
+
+    # Available only when single node selected.
+    var should_enable_when_single_node_selected = selected_nodes_set.size() == 1
+    for button_name in self.button_enabled_only_when_single_node_selected:
+        var button: Button = self.get_node(NodePath(button_name))
+        button.disabled = not should_enable_when_single_node_selected
