@@ -8,6 +8,10 @@ extends GraphNode
 
 signal slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
 
+## Whether the representing [code]MusicNode[/code] is a starting point of the graph.
+var is_starting_node: bool = false
+
+func _draw() -> void: return self.onRedraw()
 func _to_string() -> String: return self.toString()
 
 var node_store: MusicNode
@@ -134,11 +138,35 @@ func addOutSlot() -> void:
     # UI.
     self.loadSlotInfoFromStore()
 
+## This only affect UI.
+func setToStartingNodeStyle():
+    # Avoid unnecessary set.
+    if not self.is_starting_node:
+        self.is_starting_node = true
+        self.queue_redraw()
+
+## This only affect UI.
+func setToNormalStyle():
+    # Avoid unnecessary set.
+    if self.is_starting_node:
+        self.is_starting_node = false
+        self.queue_redraw()
+
 ## Indicates the slot being changed.
 ## If [param index] is [code]-1[/code], reload all.
 func onSlotChanged(slot: StrategySlot):
     var index = self.node_store.strategy_slots.find(slot)
     self.reloadSpecificSlotFromStorage(index)
+
+## This draws a thin border for the starting node.
+func onRedraw():
+    if self.is_starting_node:
+        self.draw_rect(
+            Rect2(Vector2.ZERO - Vector2(4, 8), self.size + Vector2(8, 12)),
+            Color("#decafe"),
+            false,
+            2
+        )
 
 func toString() -> String:
     return str(
