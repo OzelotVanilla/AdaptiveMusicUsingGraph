@@ -202,16 +202,21 @@ func clear():
     for c in self.get_children():
         self.remove_child(c)
 
+## These buttons will be enabled only when there is a valid file opened.
+const button_enabled_when_valid_file := [
+    "editor_button__Select Mode",  "editor_button__Move Mode",
+    "editor_button__Connect Mode", "editor_button__Single Node Focusing Mode",
+    "editor_button__Add New Node",
+]
+
 var cache__editor_button_enability: bool = false
 func setEnabilityOfEditorButtons(value: bool):
     if value == self.cache__editor_button_enability: return
     self.cache__editor_button_enability = value
 
-    for child in self.get_children(): if child is Button:
-        if   child.name.begins_with("editor_button__") \
-         and child.name not in self.button_enabled_only_when_multiple_node_selected \
-         and child.name not in self.button_enabled_only_when_single_node_selected:
-            child.disabled = not value
+    for path in self.button_enabled_when_valid_file:
+        var button = self.get_node(NodePath(path))
+        button.disabled = not value
 
 ## Called after graph_editor is init-ed.
 func onSelectModePress():
