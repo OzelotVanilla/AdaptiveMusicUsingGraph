@@ -138,6 +138,26 @@ func addOutSlot() -> void:
     # # UI.
     self.loadSlotInfoFromStore()
 
+## Get the slot with the left port (input port), for given index of left port. Returns [code]null[/code] if not found.[br]
+## For example:[br]
+## * [code]in SlotA out[/code][br]
+## * [code]-- SlotB out[/code][br]
+## * [code]in SlotC ---[/code][br]
+## Then, for [param index] is [code]0[/code], returns [code]SlotA[/code].
+## For [param index] is [code]1[/code], returns [code]SlotC[/code].
+func getSlotWithLeftPortIndexAt(index: int) -> StrategySlot:
+    return self.node_store.strategy_slots.get(self.get_input_port_slot(index))
+
+## Get the slot with the right port (output port), for given index of right port. Returns [code]null[/code] if not found.[br]
+## For example:[br]
+## * [code]in SlotA out[/code][br]
+## * [code]-- SlotB out[/code][br]
+## * [code]in SlotC ---[/code][br]
+## Then, for [param index] is [code]0[/code], returns [code]SlotA[/code].
+## For [param index] is [code]1[/code], returns [code]SlotB[/code].
+func getSlotWithRightPortIndexAt(index: int) -> StrategySlot:
+    return self.node_store.strategy_slots.get(self.get_output_port_slot(index))
+
 ## This only affect UI.
 func setToStartingNodeStyle():
     # Avoid unnecessary set.
