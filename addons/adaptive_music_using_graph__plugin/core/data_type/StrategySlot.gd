@@ -16,7 +16,8 @@ enum PortLocation
     both
 }
 
-## The evaluation type of the slot.[br]
+## The evaluation type of the slot.[br][br]
+##
 ## For the in-path connected into main input, the precedence of the evaluation is:[br]
 ## 1. area_change. If match, produce 100% fitness. [br]
 ## 2. status_change. If match, produce 100% fitness. [br]
@@ -106,13 +107,14 @@ const list__revertable_properties: Array[StringName] = [
     "connection_category", "colour", "icon_path"
 ]
 
+## [param icon_or_path] could be [Texture2D] for icon itself, or [String] representing for path.
 func _init(
     location: PortLocation,
     type: EvalType = EvalType.none,
     title: StringName = "",
     group_name: StringName = "",
     colour: Color = self.default_colour,
-    icon_or_path = null,
+    icon_or_path: Variant = null,
     connection_category: int = self.default_connection_category,
 ) -> void:
     self.location = location

@@ -159,24 +159,25 @@ func addNode():
         self.new_node_position + Vector2(20, 40)
     )
 
-    # Signal.
+    # # Signal.
     var new_graph_node := MusicGraphNode.new(new_node)
     new_graph_node.connect(
         "slot_being_clicked",
         self.onNodeSlotBeingClicked
     )
 
-    # UI.
+    # # UI.
     # This `call_deferred` is required, to avoid error when removing the node.
     self.add_child.bind(new_graph_node).call_deferred()
     self.ui_node_dict[new_node_id] = new_graph_node
 
-    # Data.
+    # # Data.
     self.graph_store.addNode(new_node)
 
     # Avoiding stacking together when called multiple times.
     self.new_node_position += Vector2(20, 40)
 
+## Return the [MusicGraphNode] itself by its name (path, stored in [StringName]).
 func getNode(name: StringName) -> MusicGraphNode:
     return self.get_node(NodePath(name))
 
@@ -184,18 +185,18 @@ func getNode(name: StringName) -> MusicGraphNode:
 func removeNode(node: MusicGraphNode) -> void:
     # First disconnect.
     for edge in self.graph_store.getAdjacentEdgeOfNode(node.node_store.id):
-        # UI.
+        # # UI.
         self.disconnect_node(
             self.graph_store.getNode(edge.from_node).name, edge.from_slot,
             self.graph_store.getNode(edge.to_node).name,   edge.to_slot
         )
-        # Data: Do not need to remove here. Auto removed in `MusicGraph::removeNode`.
+        # # Data: Do not need to remove here. Auto removed in `MusicGraph::removeNode`.
 
     # Then delete.
-    # UI.
+    # # UI.
     self.remove_child.bind(node).call_deferred()
     self.ui_node_dict.erase(node.node_store.id)
-    # Data.
+    # # Data.
     self.graph_store.removeNode(node.node_store)
 
 func setStartingNode(starting_node_id: int):
@@ -235,13 +236,15 @@ func onDeselectingNode(node: Node):
 
     self.node_select_status_changed.emit(self.selected_nodes_set)
 
-## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).
+## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).[br]
+## [param port] stands for the index of the port at left/right of [MusicGraphNode]'s [StrategySlot].
 func onConnectingNode(from_node__name: StringName, from_port: int, to_node__name: StringName, to_port: int):
     # TODO: Check if can be connected.
-    # UI.
+    # # UI.
     self.connect_node(from_node__name, from_port, to_node__name, to_port)
 
-    # Data.
+    # # Data.
+    # First, create an edge for it.
     var new_edge_id = self.edge_id_counter
     self.edge_id_counter += 1
     var from_node := self.getNode(from_node__name)
@@ -277,7 +280,6 @@ func onSavingAction():
 
 func onClosingAction():
     # TODO: Ask for if whether save for unsaved file.
-
     self.onOKToCloseSelected()
 
 func onOKToCloseSelected():

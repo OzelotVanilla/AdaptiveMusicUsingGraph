@@ -41,3 +41,15 @@ func _init(
     self.to_slot = to_slot
 
     self.resource_name = str("MusicEdge ", name if name.length() > 0 else str("#", id))
+
+func _to_string() -> String:
+    return str(
+        "MusicEdge@{",
+        "id: ", self.id, ", ",
+        "name: \"", self.name, "\", ",
+        "from_node: ", self.from_node, ", ",
+        "from_slot: ", self.from_slot, ", ",
+        "to_node: ", self.to_node, ", ",
+        "to_slot: ", self.to_slot, ", ",
+        "}"
+    )
