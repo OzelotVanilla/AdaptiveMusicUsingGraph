@@ -61,7 +61,7 @@ static func getKeyPressShortcutFromText(text: String) -> Shortcut:
 #endregion
 
 #region Audio load related
-static func loadAudioStreamFromFile(path: String, file_type: String = ""):
+static func loadAudioStreamFromFile(path: String, file_type: String = "") -> AudioStream:
     if path == "": return null
 
     var audio_stream: AudioStream = null

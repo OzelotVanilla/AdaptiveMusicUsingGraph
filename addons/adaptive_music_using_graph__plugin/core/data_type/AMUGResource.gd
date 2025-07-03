@@ -13,6 +13,7 @@ func _to_string() -> String: return self.toString()
 func toString():
     return str(
         "AMUGResource@{",
+        "resource_path: \"", self.resource_path, "\", ",
         "music_graph: ", self.music_graph,
         "}"
     )

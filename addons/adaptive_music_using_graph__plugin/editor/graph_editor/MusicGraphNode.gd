@@ -50,7 +50,7 @@ func loadSlotInfoFromStore():
 
     # Add from storage.
     for i in self.node_store.strategy_slots:
-        var slot_content: Control = self.getSlotShowingContent(i)
+        var slot_content: Control = self.generateSlotShowingContent(i)
 
         # Add wrapping panel and its style (border). Use panel for stability for `add_theme_stylebox_override` method.
         var wrapping_panel = PanelContainer.new()
@@ -77,7 +77,7 @@ func reloadSpecificSlotFromStorage(index: int):
     # Remove then add new.
     var old_wrapping_panel = self.get_child(index)
     for c in old_wrapping_panel.get_children(): old_wrapping_panel.remove_child(c)
-    old_wrapping_panel.add_child(self.getSlotShowingContent(slots[index]))
+    old_wrapping_panel.add_child(self.generateSlotShowingContent(slots[index]))
 
     # Incase the slot info was also changed
     self.setPortBySlotInfo(slots[index])
@@ -85,7 +85,7 @@ func reloadSpecificSlotFromStorage(index: int):
     # Redraw if the width need to change correspondantely.
     self.queue_redraw()
 
-func getSlotShowingContent(slot: StrategySlot) -> Control:
+func generateSlotShowingContent(slot: StrategySlot) -> Control:
     var slot_content = Label.new()
     slot_content.text = slot.title
     return slot_content
@@ -118,24 +118,24 @@ func setPortBySlotInfo(slot: StrategySlot):
 
 ## Should operate both UI (`self`) and Data (`node_store: MusicNode`).
 func addInOutSlot() -> void:
-    # Data.
+    # # Data.
     var slot: StrategySlot
     slot = self.node_store.addSlot(StrategySlot.PortLocation.both)
-    # Signal.
+    # # Signal.
     self.connectToSlot(slot)
 
-    # UI.
+    # # UI.
     self.loadSlotInfoFromStore()
 
 ## Should operate both UI (`self`) and Data (`node_store: MusicNode`).
 func addOutSlot() -> void:
-    # Data.
+    # # Data.
     var slot: StrategySlot
     slot = self.node_store.addSlot(StrategySlot.PortLocation.right)
-    # Signal.
+    # # Signal.
     self.connectToSlot(slot)
 
-    # UI.
+    # # UI.
     self.loadSlotInfoFromStore()
 
 ## This only affect UI.

@@ -33,6 +33,7 @@ var edge_id_counter: int = 0
 ## * Value: array of id of all connecting edge of this node (Edge contains `from` and `to` info for node).
 var adjacent_dict: Dictionary[int, PackedInt64Array] = {}
 
+
 func _init(
         node_array: Array[MusicNode] = [],
         edge_array: Array[MusicEdge] = [],
