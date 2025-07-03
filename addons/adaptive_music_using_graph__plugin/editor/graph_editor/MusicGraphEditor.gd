@@ -133,6 +133,13 @@ func loadGraphFromStore():
         self.add_child(graph_node)
         self.ui_node_dict.set(node.id, graph_node)
 
+    # Load edges.
+    for edge in self.graph_store.edge_array:
+        self.connect_node(
+            self.ui_node_dict[edge.from_node].name, edge.from_slot,
+            self.ui_node_dict[edge.to_node].name, edge.to_slot
+        )
+
     # Load Data and UI effect for starting node.
     self.old_starting_node_id = -1
     self.setStartingNode(self.graph_store.starting_node_id)
@@ -187,8 +194,8 @@ func removeNode(node: MusicGraphNode) -> void:
     for edge in self.graph_store.getAdjacentEdgeOfNode(node.node_store.id):
         # # UI.
         self.disconnect_node(
-            self.graph_store.getNode(edge.from_node).name, edge.from_slot,
-            self.graph_store.getNode(edge.to_node).name,   edge.to_slot
+            self.ui_node_dict[edge.from_node].name, edge.from_slot,
+            self.ui_node_dict[edge.to_node].name,   edge.to_slot
         )
         # # Data: Do not need to remove here. Auto removed in `MusicGraph::removeNode`.
 
@@ -254,6 +261,12 @@ func onConnectingNode(from_node__name: StringName, from_port: int, to_node__name
         from_node.node_store.id, from_port,
         to_node.node_store.id,   to_port
     )
+    self.graph_store.addEdge(new_edge_id, new_edge)
+    # Then, save the edge to the slot.
+    var from_slot := from_node.getSlotWithRightPortIndexAt(from_port)
+    var to_slot   := to_node.getSlotWithLeftPortIndexAt(to_port)
+    from_slot.to_edge = new_edge_id
+    to_slot.from_edge = new_edge_id
 
 ## Remove selected node.
 ## Should operate both UI (`self`) and storage (`graph_store: MusicGraph`).

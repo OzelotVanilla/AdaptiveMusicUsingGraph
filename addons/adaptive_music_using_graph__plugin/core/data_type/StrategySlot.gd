@@ -62,6 +62,12 @@ var type__description: StringName:
         type = value
         self.slot_changed.emit(self)
 
+## The input edge (if have) of the slot. Saved in [int].
+@export var from_edge: int = -1
+
+## The output edge of the slot. Saved in [int].
+@export var to_edge: int = -1
+
 ## Title displayed in the slot.
 @export var title: StringName = "":
     set(value):
@@ -113,6 +119,8 @@ func _init(
     type: EvalType = EvalType.none,
     title: StringName = "",
     group_name: StringName = "",
+    from_edge: int = -1,
+    to_edge: int = -1,
     colour: Color = self.default_colour,
     icon_or_path: Variant = null,
     connection_category: int = self.default_connection_category,
@@ -121,6 +129,8 @@ func _init(
     self.type = type
     self.title = title
     self.group_name = group_name
+    self.from_edge = from_edge
+    self.to_edge = to_edge
     self.colour = colour
     self.connection_category = connection_category
 
