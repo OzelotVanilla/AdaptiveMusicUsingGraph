@@ -23,15 +23,18 @@ var node_id_counter: int = 0
 ## Counter used for new edge creation.
 var edge_id_counter: int = 0
 
-## Generated from `node_dict` and `edge_dict`.[br]
+## Generated from `node_dict` and `edge_dict`. Type: [code]Dictionary[NodeID, Set[EdgeID]][/code][br]
 ##
 ## Do not directly operate this.
 ## Using method defined below.[br]
 ##
 ## This dict saves the all adjacent node to one node.[br]
 ## * Key: node's id to search for adjacent.[br]
-## * Value: array of id of all connecting edge of this node (Edge contains `from` and `to` info for node).
-var adjacent_dict: Dictionary[int, PackedInt64Array] = {}
+## * Value: set (impl-ed by [Dictionary]) of id of all connecting edge of this node (Edge contains `from` and `to` info for node).[br]
+##
+## Since edge is connected from/to the node's slot, but not the nodes itself, so:
+##  adjacent node does [b]not[/b] means one of the node must be the following node.
+var adjacent_dict: Dictionary[int, Dictionary] = {}
 
 
 func _init(
@@ -41,13 +44,10 @@ func _init(
 ) -> void:
     self.node_dict = {}; for n in node_array: self.node_dict[n.id] = n
     self.edge_dict = {}; for e in edge_array: self.edge_dict[e.id] = e
-    ## A temp dict storing node's adjacent edge's id. Type: [code]Dictionary[NodeID, Set[EdgeID]][/code].
-    var adjacency: Dictionary[int, Dictionary] = {}
+
     for e in edge_dict.values(): if e is MusicEdge:
-        adjacency.get_or_add(e.from_node, {}).set(e.id, null)
-        adjacency.get_or_add(e.to_node,   {}).set(e.id, null)
-    for node_id in adjacency.keys():
-        self.adjacent_dict[node_id] = PackedInt64Array(adjacency[node_id].keys())
+        self.adjacent_dict.get_or_add(e.from_node, {}).set(e.id, null)
+        self.adjacent_dict.get_or_add(e.to_node,   {}).set(e.id, null)
 
     # Init the id-counter.
     if node_array.size() > 0:
@@ -104,9 +104,10 @@ func getIdOfEdge(id_or_edge: Variant) -> int:
 func getAdjacentEdgeOfNode(id_or_node: Variant) -> Array[MusicEdge]:
     var node_id := self.getIdOfNode(id_or_node)
     if adjacent_dict.has(node_id):
-        var edge_ids: PackedInt64Array = adjacent_dict[node_id]
+        ## [code]Dictionary[edge_id, null][/code]
+        var edge_ids: Dictionary[int, Variant] = adjacent_dict[node_id]
         var edges = []
-        for id in edge_ids: edges.append(edge_dict[id])
+        for id in edge_ids.keys(): edges.append(edge_dict[id])
         return edges
     else:
         return []
