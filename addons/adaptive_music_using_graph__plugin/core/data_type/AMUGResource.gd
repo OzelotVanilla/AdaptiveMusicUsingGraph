@@ -5,8 +5,15 @@ extends Resource
 
 @export var music_graph: MusicGraph
 
-func _init(music_graph: MusicGraph = MusicGraph.new()) -> void:
+## Optional template for the mock game env.
+@export var mock_env_template: AMUGGameEnv = null
+
+func _init(
+    music_graph: MusicGraph = MusicGraph.new(),
+    mock_env_template: AMUGGameEnv = null
+) -> void:
     self.music_graph = music_graph
+    self.mock_env_template = mock_env_template
 
 func _to_string() -> String: return self.toString()
 

@@ -83,6 +83,10 @@ var new_node_position: Vector2 = Vector2.ZERO
 ## Used if the starting node changes, need to change the theme of node.
 var old_starting_node_id: int = -1
 
+## Used for providing mocked runtime environment for previewing the play of the node.
+## If current editing map has a template for mock env, load that instead.
+var mock_env := AMUGGameEnv.new()
+
 @onready var shortcut_manager := MusicGraphEditorShortcutManager.new()
 @onready var new_music_graph_dialog: NewMusicGraphDialog = $NewMusicGraphDialog
 
