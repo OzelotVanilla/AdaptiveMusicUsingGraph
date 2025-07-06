@@ -99,5 +99,6 @@ layout_mode = 2
 [connection signal="node_select_status_changed" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/FileTabAndParamList/PanelContainer/ParamList" method="onSelectingNodeStatusChanged"]
 [connection signal="node_selected" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" method="onSelectingNode"]
 [connection signal="node_slot_being_clicked" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_NodeSlotBeingClicked"]
+[connection signal="preview_play_finished" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/TopButtonBar" method="onPreviewPlayFinished"]
 [connection signal="selected_node_had_changing" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="." method="on_GraphEditor_SelectedNodeHadChanging"]
 [connection signal="starting_node_setted" from="VBoxContainer/HSplit/EditorAndBreif/MusicGraphEditor" to="VBoxContainer/TopButtonBar" method="onStartingNodeSetted"]

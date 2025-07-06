@@ -34,6 +34,10 @@ signal node_slot_being_clicked(node: MusicGraphNode, slot: StrategySlot)
 ##  which is usual when change to another AMUG file.
 signal starting_node_setted(starting_node_id: int)
 
+## A preview play (from plugin, not runtime) is finished.
+## Emitted when the [member sound_play_manager] emits [signal SoundPlayManager.play_finished].
+signal preview_play_finished()
+
 ## The operation mode of MusicGraphEditor.
 enum OperationMode
 {
@@ -83,6 +87,9 @@ var new_node_position: Vector2 = Vector2.ZERO
 ## Used if the starting node changes, need to change the theme of node.
 var old_starting_node_id: int = -1
 
+## Used for preview the play of the node.
+var sound_play_manager := SoundPlayManager.new()
+
 ## Used for providing mocked runtime environment for previewing the play of the node.
 ## If current editing map has a template for mock env, load that instead.
 var mock_env := AMUGGameEnv.new()
@@ -96,7 +103,11 @@ func _gui_input(event: InputEvent) -> void: return self.__handleGUIInput__(event
 func _shortcut_input(event: InputEvent) -> void: return self.shortcut_manager.handle(self, event)
 
 func _init() -> void:
-    pass
+    # Connect to the signal provided by `sound_play_manager`.
+    self.sound_play_manager.play_finished.connect(
+        self.onSoundPlayManagerFinishedPlaying
+    )
+    self.add_child(self.sound_play_manager)
 
 func __onEnteringSceneTree__():
     pass
@@ -234,6 +245,28 @@ func setStartingNode(starting_node_id: int):
     ## Data.
     self.graph_store.setStartingNode(starting_node_id)
 
+func playPreview() -> Error:
+    # If no starting node, give error.
+    if self.graph_store.starting_node == null:
+        return Error.ERR_UNCONFIGURED
+
+    # Let sound_play_manager load current graph, then try to play.
+    self.sound_play_manager.loadMusicGraph(self.graph_store)
+    self.sound_play_manager.loadGameEnv(self.mock_env)
+    var play_result = self.sound_play_manager.play()
+    if play_result != Error.OK:
+        return play_result
+
+    return Error.OK
+
+func pausePreview():
+    #TODO
+    pass
+
+func stopPreview():
+    #TODO
+    pass
+
 func onSelectingNode(node: GraphElement):
     self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
     if node is MusicGraphNode:
@@ -309,3 +342,9 @@ func onNodeSlotBeingClicked(node: MusicGraphNode, slot: StrategySlot):
 
     # Then tell the bottom panel to show and focus/scroll.
     self.node_slot_being_clicked.emit(node, slot)
+
+func onSoundPlayManagerFinishedPlaying(is_runtime: bool):
+    # That means it is a preview play requested by this editor.
+    if not is_runtime:
+        self.stopPreview()
+        self.preview_play_finished.emit()

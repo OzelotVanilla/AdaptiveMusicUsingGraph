@@ -75,3 +75,11 @@ func addSlot(port_location: StrategySlot.PortLocation) -> StrategySlot:
     var result = StrategySlot.new(port_location, slot_type)
     self.strategy_slots.append(result)
     return result
+
+## Evaluate according to the runtime param.[br][br]
+##
+## [code]null[/code] means no available node next.
+func evaluate(env: AMUGGameEnv) -> MusicEdge:
+    var next_edge: MusicEdge = null
+
+    return next_edge

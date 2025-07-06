@@ -74,6 +74,23 @@ func getTopButtonsConfig():
      "on_press": "onSelectStartingNodePress",
      "icon_name": "NewRoot",
      "description": "Set the selected node as the starting point of the graph."},
+
+    {"node_type": "spacer"},
+
+    {"name": "Play", "toggle_mode": false, "is_selected": false,
+     "on_press": "onPlayPress",
+     "icon_name": "Play",
+     "description": "Preview the play process of current music graph."},
+
+    {"name": "Pause", "toggle_mode": false, "is_selected": false,
+     "on_press": "onPausePress",
+     "icon_name": "Pause",
+     "description": "Pause the preview playing."},
+
+    {"name": "Stop", "toggle_mode": false, "is_selected": false,
+     "on_press": "onStopPress",
+     "icon_name": "Stop",
+     "description": "Stop the preview playing."},
 ]
 
 var graph_editor: MusicGraphEditor
@@ -101,6 +118,9 @@ func initButtons(graph_editor: MusicGraphEditor):
 
                 "MenuButtton":
                     self.addMenuButton(config)
+
+                "spacer":
+                    self.add_spacer(false)
 
             continue
 
@@ -257,6 +277,57 @@ func onSelectStartingNodePress():
         (self.graph_editor.selected_nodes_set.keys()[0] as MusicGraphNode).node_store.id
     )
 
+var play_preview_button: Button:
+    get: return self.get_node(NodePath("editor_button__Play"))
+
+var pause_preview_button: Button:
+    get: return self.get_node(NodePath("editor_button__Pause"))
+
+var stop_preview_button: Button:
+    get: return self.get_node(NodePath("editor_button__Stop"))
+
+## Clear the status of all preview buttons, and set them to disabled.
+func disablePreviewButtons():
+    self.play_preview_button.disabled = true
+    self.play_preview_button.icon = util.getEditorIcon("Play")
+    self.pause_preview_button.disabled = true
+    self.stop_preview_button.disabled = true
+
+## Enable all preview buttons, and init them to ready-to-play status.
+func enablePreviewButtons():
+    self.play_preview_button.disabled = false
+    self.play_preview_button.icon = util.getEditorIcon("Play")
+    self.pause_preview_button.disabled = true
+    self.stop_preview_button.disabled = true
+
+func onPlayPress():
+    ## Do not continue if editor cannot play.
+    var play_result = self.graph_editor.playPreview()
+    if play_result != Error.OK: return
+
+    self.play_preview_button.icon = util.getEditorIcon("TransitionImmediateAuto")
+    self.play_preview_button.disabled = true
+
+    self.pause_preview_button.disabled = false
+    self.stop_preview_button.disabled = false
+
+func onPausePress():
+    self.graph_editor.pausePreview()
+
+    self.play_preview_button.icon = util.getEditorIcon("Play")
+    self.play_preview_button.disabled = false
+
+    self.pause_preview_button.disabled = true
+
+func onStopPress():
+    self.graph_editor.stopPreview()
+
+    self.play_preview_button.icon = util.getEditorIcon("Play")
+    self.play_preview_button.disabled = false
+
+    self.pause_preview_button.disabled = true
+    self.stop_preview_button.disabled = true
+
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.
     self.setEnabilityOfEditorButtons(
@@ -294,3 +365,7 @@ func onStartingNodeSetted(starting_node_id: int) -> void:
     # If valid id:
     else:
         self.enablePreviewButtons()
+
+func onPreviewPlayFinished() -> void:
+    # Funtionally, it is the same as pressing the stop button.
+    self.onStopPress()
