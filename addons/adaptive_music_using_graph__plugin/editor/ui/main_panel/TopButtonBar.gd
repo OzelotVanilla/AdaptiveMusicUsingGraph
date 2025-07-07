@@ -300,10 +300,19 @@ func enablePreviewButtons():
     self.pause_preview_button.disabled = true
     self.stop_preview_button.disabled = true
 
+#region Preview-Play related.
+var is_just_paused: bool = false
+
 func onPlayPress():
-    ## Do not continue if editor cannot play.
-    var play_result = self.graph_editor.playPreview()
-    if play_result != Error.OK: return
+    # When resume.
+    if self.is_just_paused:
+        self.graph_editor.resumePreview()
+        self.is_just_paused = false
+    # When starting new play.
+    else:
+        ## Do not continue if editor cannot play.
+        var play_result = self.graph_editor.playPreview()
+        if play_result != Error.OK: return
 
     self.play_preview_button.icon = util.getEditorIcon("TransitionImmediateAuto")
     self.play_preview_button.disabled = true
@@ -313,6 +322,7 @@ func onPlayPress():
 
 func onPausePress():
     self.graph_editor.pausePreview()
+    self.is_just_paused = true
 
     self.play_preview_button.icon = util.getEditorIcon("Play")
     self.play_preview_button.disabled = false
@@ -321,12 +331,14 @@ func onPausePress():
 
 func onStopPress():
     self.graph_editor.stopPreview()
+    self.is_just_paused = false
 
     self.play_preview_button.icon = util.getEditorIcon("Play")
     self.play_preview_button.disabled = false
 
     self.pause_preview_button.disabled = true
     self.stop_preview_button.disabled = true
+#endregion
 
 func onFileTabListChange(info: FileTabListChangeInfo) -> void:
     # If there is no file opened, disable the buttons.

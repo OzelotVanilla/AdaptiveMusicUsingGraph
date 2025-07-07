@@ -45,30 +45,49 @@ func loadMusicGraph(graph: MusicGraph):
 func loadGameEnv(env: AMUGGameEnv):
     self.env_ref = env
 
-## Play the graph.[br][br]
+#region Play control related.
+## The offset info of current [member sound_player]'s .[br][br]
+##
+## Set by [method pause], and used by resume for [method play].
+var resume_offset: float = -1
+
+## Play or resume the graph.[br][br]
 ##
 ## Should provide both [MusicGraph] and [AMUGGameEnv] before run.
-## Otherwise, [constant Error.ERR_UNCONFIGURED] will be returned.
+## Otherwise, [constant Error.ERR_UNCONFIGURED] will be returned.[br][br]
+##
+## If [member resume_offset] is [code]>= 0[/code], this method resume the playing.
 func play() -> Error:
     if self.graph_ref == null or self.env_ref == null: return Error.ERR_UNCONFIGURED
 
-    #TODO Use node and edge to play more.
-    var starting_node := self.graph_ref.starting_node
-    if starting_node == null: return Error.ERR_DOES_NOT_EXIST
+    # See if it is a new playing, or resume.
+    # If starting new playing.
+    if self.resume_offset < 0:
+        #TODO Use node and edge to play more.
+        var starting_node := self.graph_ref.starting_node
+        if starting_node == null: return Error.ERR_DOES_NOT_EXIST
 
-    self.resetPlayLoop()
-    self.startPlayLoop(starting_node)
+        self.resetPlayLoop()
+        self.startPlayLoop(starting_node)
+    # If resuming.
+    else:
+        self.sound_player.play(self.resume_offset)
+        # Need to reset, since successfully resume.
+        self.resume_offset = -1
 
     return Error.OK
 
 ## Pause the playing.
 func pause():
-    pass
+    self.resume_offset = self.sound_player.get_playback_position() + AudioServer.get_time_since_last_mix()
+    self.sound_player.stop()
 
 ## Stop the playing.
 func stop():
     self.sound_player.stop()
+    self.resume_offset = -1
     self.resetPlayLoop()
+#endregion
 
 #region Play loop related.
 ## To control if [method startPlayLoop] continues looping.
@@ -171,7 +190,7 @@ func __onReady__():
 
 func __onProcess__(delta: float):
     # If there are node being played, process the play loop.
-    if self.current_node != null:
+    if self.current_node != null and self.sound_player.playing:
         # If first time enter this function, set the current time align with
         if self.current_time <= 0.0:
             self.current_time = self.sound_player.get_playback_position()

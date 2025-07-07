@@ -260,12 +260,13 @@ func playPreview() -> Error:
     return Error.OK
 
 func pausePreview():
-    #TODO
-    pass
+    self.sound_play_manager.pause()
+
+func resumePreview():
+    self.sound_play_manager.play()
 
 func stopPreview():
-    #TODO
-    pass
+    self.sound_play_manager.stop()
 
 func onSelectingNode(node: GraphElement):
     self.new_node_position = Vector2(node.offset_right, node.offset_top) + Vector2(20, 40)
