@@ -5,7 +5,7 @@ extends HBoxContainer
 # End of class document.
 
 
-const slot_control_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/SlotControl.tscn")
+const slot_control_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/bottom_panel/SlotControl.tscn")
 var message__select_a_node_to_start: Label:
     get:
         var label = Label.new()

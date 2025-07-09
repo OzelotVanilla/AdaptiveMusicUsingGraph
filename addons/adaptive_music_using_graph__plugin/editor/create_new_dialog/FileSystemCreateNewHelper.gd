@@ -2,7 +2,7 @@
 class_name FileSystemCreateNewHelper
 extends EditorContextMenuPlugin
 
-const new_music_graph_dialog_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/ui/create_new_dialog/NewMusicGraphDialog.tscn")
+const new_music_graph_dialog_scene := preload("res://addons/adaptive_music_using_graph__plugin/editor/create_new_dialog/NewMusicGraphDialog.tscn")
 var new_music_graph_dialog: NewMusicGraphDialog = null
 
 func _popup_menu(paths: PackedStringArray) -> void:

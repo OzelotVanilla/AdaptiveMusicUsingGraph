@@ -1,10 +1,10 @@
 [gd_scene load_steps=5 format=3 uid="uid://bd61y0qw0qgph"]
 
-[ext_resource type="Script" uid="uid://cojyg5wg7kjk1" path="res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/MusicGraphBottomPanel.gd" id="1_glidp"]
-[ext_resource type="Script" uid="uid://27g8h16on86e" path="res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/SlotControlPanelButton.gd" id="2_58t80"]
-[ext_resource type="Script" uid="uid://uemtpfjhpf00" path="res://addons/adaptive_music_using_graph__plugin/editor/ui/bottom_panel/SlotControlBar.gd" id="3_i75nn"]
+[ext_resource type="Script" uid="uid://cojyg5wg7kjk1" path="res://addons/adaptive_music_using_graph__plugin/editor/bottom_panel/MusicGraphBottomPanel.gd" id="1_glidp"]
+[ext_resource type="Script" uid="uid://27g8h16on86e" path="res://addons/adaptive_music_using_graph__plugin/editor/bottom_panel/SlotControlPanelButton.gd" id="2_58t80"]
+[ext_resource type="Script" uid="uid://uemtpfjhpf00" path="res://addons/adaptive_music_using_graph__plugin/editor/bottom_panel/SlotControlBar.gd" id="3_i75nn"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_58t80"]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_cghv0"]
 content_margin_left = 4.0
 content_margin_top = 4.0
 content_margin_right = 4.0
@@ -38,7 +38,7 @@ script = ExtResource("2_58t80")
 [node name="ScrollContainer" type="ScrollContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_styles/panel = SubResource("StyleBoxFlat_58t80")
+theme_override_styles/panel = SubResource("StyleBoxFlat_cghv0")
 vertical_scroll_mode = 0
 
 [node name="SlotControlBar" type="HBoxContainer" parent="VBoxContainer/ScrollContainer"]
