@@ -3,7 +3,7 @@ extends Resource
 ## Definition of the music graph `tres` file.
 # End of class document.
 
-@export var music_graph: MusicGraph
+@export var music_graph: MusicGraph = MusicGraph.new()
 
 ## Optional template for the mock game env.
 @export var mock_env_template: AMUGGameEnv = null

@@ -51,8 +51,10 @@ var type__description: StringName:
     get(): return StrategySlot.getTypeDescription(type)
 
 
-## The location of the slot on the node.
-@export var location: PortLocation
+## The location of the slot on the node.[br][br]
+## Use [code]-1[/code] for default value,
+##  since it accept [enum PortLocation]-typed value, which starts at [code]0[/code].
+@export var location: PortLocation = -1
 
 ## How the slot evaluate.
 @export var type: EvalType:
@@ -113,9 +115,12 @@ const list__revertable_properties: Array[StringName] = [
     "connection_category", "colour", "icon_path"
 ]
 
+## Should specify the [param location] here.
+## Having default value here only for resource saving/loading purpose.[br][br]
+##
 ## [param icon_or_path] could be [Texture2D] for icon itself, or [String] representing for path.
 func _init(
-    location: PortLocation,
+    location: PortLocation = PortLocation.right,
     type: EvalType = EvalType.none,
     title: StringName = "",
     group_name: StringName = "",

@@ -7,7 +7,7 @@ extends Resource
 
 ## The id of the node.
 ## Could be re-assigned for ID reusing purpose.
-@export var id: int
+@export var id: int = -1
 
 ## Human-readable name for the node.
 ## Could be omitted.
@@ -29,9 +29,11 @@ var music_segment: AudioStream:
 
 var slot_index_counter: int
 
+## [b]Notice[/b]: Should specify the [param id] and [param name] here.
+## Having default value here only for resource saving/loading purpose.
 func _init(
-        id: int,
-        name: String,
+        id: int = -1,
+        name: String = "",
         music_segment: AudioStream = null,
         ui_position: Vector2 = Vector2.ZERO,
         strategy_slots: Array[StrategySlot] = []

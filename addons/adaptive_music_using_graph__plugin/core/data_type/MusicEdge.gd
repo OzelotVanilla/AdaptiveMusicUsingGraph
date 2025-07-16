@@ -6,32 +6,35 @@ extends Resource
 
 ## The id of the edge.
 ## Could be re-assigned for ID reusing purpose.
-@export var id: int
+@export var id: int = -1
 
 ## Human-readable name for the edge.
 ## Could be omitted.
 @export var name: String = ""
 
 ## Record node's id.
-@export var from_node: int
+@export var from_node: int = -1
 
 ## Record slot's index.
-@export var from_slot: int
+@export var from_slot: int = -1
 
 ## Record node's id.
-@export var to_node: int
+@export var to_node: int = -1
 
 ## Record slot's index.
-@export var to_slot: int
+@export var to_slot: int = -1
 
-## [param from_node] and [param to_node] can be either node id or MusicNode itself.
+## [param from_node] and [param to_node] can be either node id or MusicNode itself.[br][br]
+##
+## [b]Notice[/b]: Should specify all params here.
+## Having default value here only for resource saving/loading purpose.
 func _init(
-        id: int,
-        name: String,
-        from_node: int,
-        from_slot: int,
-        to_node: int,
-        to_slot: int
+        id: int = -1,
+        name: String = "",
+        from_node: int = -1,
+        from_slot: int = -1,
+        to_node: int = -1,
+        to_slot: int = -1
 ) -> void:
     self.id = id
     self.name = name
