@@ -6,11 +6,15 @@ extends Resource
 
 
 ## Array saving reference to node, sorted by node's id, from small to big.
-@export var node_array: Array[MusicNode]: get = getAllNodes
+@export var node_array: Array[MusicNode] = []:
+    get = getAllNodes,
+    set = loadFromNodeArray
 var node_dict: Dictionary[int, MusicNode] = {}
 
 ## Array saving reference to edge, sorted by edge's id, from small to big.
-@export var edge_array: Array[MusicEdge]: get = getAllEdges
+@export var edge_array: Array[MusicEdge] = []:
+    get = getAllEdges,
+    set = loadFromEdgeArray
 var edge_dict: Dictionary[int, MusicEdge] = {}
 
 ## Saving the play starting node's id.
@@ -123,6 +127,36 @@ func getAllEdges() -> Array[MusicEdge]:
     var edges = self.edge_dict.values()
     edges.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
     return edges
+
+## Update the graph by providing [param node_array].
+## Used in resource de-serialisation for this class.[br][br]
+##
+## [b]Notice[/b]: This will only update [member node_dict].
+## So it should better to be called with [method loadFromEdgeArray] together.
+func loadFromNodeArray(node_array: Array[MusicNode]):
+    self.node_dict = {}; for n in node_array: self.node_dict[n.id] = n
+
+    # Init the id-counter.
+    if node_array.size() > 0:
+        node_array.sort_custom(func(a: MusicNode, b: MusicNode): a.id < b.id)
+        self.node_id_counter = node_array[-1].id + 1
+
+## Update the graph by providing [param edge_array].
+## Used in resource de-serialisation for this class.[br][br]
+##
+## [b]Notice[/b]: This will only update [member edge_dict] and [member adjacent_dict].
+## So it should better to be called with [method loadFromNodeArray] together.
+func loadFromEdgeArray(edge_array: Array[MusicEdge]):
+    self.edge_dict = {}; for e in edge_array: self.edge_dict[e.id] = e
+
+    for e in edge_dict.values(): if e is MusicEdge:
+        self.adjacent_dict.get_or_add(e.from_node, {}).set(e.id, null)
+        self.adjacent_dict.get_or_add(e.to_node,   {}).set(e.id, null)
+
+    # Init the id-counter.
+    if edge_array.size() > 0:
+        edge_array.sort_custom(func(a: MusicEdge, b: MusicEdge): a.id < b.id)
+        self.edge_id_counter = edge_array[-1].id + 1
 
 ## Add a node.
 func addNode(node: MusicNode):
