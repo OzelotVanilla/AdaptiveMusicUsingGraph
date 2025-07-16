@@ -1,3 +1,4 @@
+@tool
 class_name AMUGResource
 extends Resource
 ## Definition of the music graph `tres` file.
