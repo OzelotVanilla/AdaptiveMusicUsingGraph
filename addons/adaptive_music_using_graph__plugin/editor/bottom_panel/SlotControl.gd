@@ -155,6 +155,14 @@ func loadSlotPanel__Area():
 
     var area_input = LineEdit.new()
     area_input.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+    area_input.text = self.slot__ref.area_change__target
+    area_input.connect(
+        "editing_toggled",
+        func(toggled_on: bool):
+            # When user leaves editing, submit.
+            if not toggled_on:
+                self.slot__ref.area_change__target = area_input.text
+    )
     grid_panel.add_child(area_input)
 
 func loadSlotPanel__Status():
@@ -169,6 +177,7 @@ func loadSlotPanel__Status():
     status_label.text = "Status"
     grid_panel.add_child(status_label)
 
+    # TODO Should record/load that in slot__ref.
     var status_dropdown = OptionButton.new()
     status_dropdown.size_flags_horizontal = Control.SIZE_EXPAND_FILL
     status_dropdown.connect(
@@ -182,6 +191,7 @@ func loadSlotPanel__Expression():
     var specific_panel = self.specific_setting_panel
     for c in specific_panel.get_children(): specific_panel.remove_child(c)
 
+    # TODO Should record/load that in slot__ref.
     var code_editor = CodeEdit.new()
     code_editor.custom_minimum_size = Vector2(400, 0)
     code_editor.auto_brace_completion_enabled = true

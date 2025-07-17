@@ -52,6 +52,7 @@ var type__description: StringName:
 ##  since it accept [enum PortLocation]-typed value, which starts at [code]0[/code].
 @export var location: PortLocation = -1
 
+#region Evaluation type and related data.
 ## How the slot evaluate.
 @export var type: EvalType:
     set(value):
@@ -59,6 +60,28 @@ var type__description: StringName:
 
         type = value
         self.slot_changed.emit(self)
+
+## Stores the customise data about evaluation.
+@export var evaluation_customise_data: Dictionary[StringName, Variant] = {}
+
+## Used when the slot set to a new evaluation type, and customised data is set.
+func clearEvaluationRelatedDataExcept(eval_type: EvalType):
+    if eval_type != EvalType.area_change:
+        self.evaluation_customise_data.erase("area_change__target")
+    if eval_type != EvalType.status_change:
+        self.evaluation_customise_data.erase("status_change__target")
+
+## The target area.
+## Only available if [member type] is set to [constant EvalType.area_change].[br][br]
+##
+## [code]""[/code] should be considered invalid.
+var area_change__target: StringName = "":
+    set(new_area):
+        self.clearEvaluationRelatedDataExcept(EvalType.area_change)
+        self.evaluation_customise_data.set("area_change__target", new_area)
+    get:
+        return self.evaluation_customise_data.get("area_change__target", "")
+#endregion
 
 ## The input edge (if have) of the slot. Saved in [int].
 @export var from_edge: int = -1

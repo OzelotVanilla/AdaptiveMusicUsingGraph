@@ -160,8 +160,10 @@ func processPlayLoop(delta: float):
 
     # If does not have next node, and should evaluate now.
     if not self.has_next_node_decided and self.current_time >= self.timing_of_eval:
-        var next_edge := self.current_node.evaluate(self.env_ref)
+        var next_edge__id := self.current_node.evaluate(self.env_ref)
+        var next_edge := self.graph_ref.getEdge(next_edge__id)
         var next_node := self.graph_ref.getNode(next_edge.to_node) if next_edge != null else null
+
         # If no available node, make it be ready to stop.
         if next_edge == null or next_node == null:
             self.sound_player.finished.connect(

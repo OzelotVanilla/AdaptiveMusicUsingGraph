@@ -79,7 +79,7 @@ func addSlot(port_location: StrategySlot.PortLocation) -> StrategySlot:
     return result
 
 ## Evaluate according to the runtime param.
-## [code]null[/code] means no available node next.[br][br]
+## [code]-1[/code] means no available node next.[br][br]
 ##
 ## For the in-path connected into main input, the precedence of the evaluation is:[br][br]
 ##
@@ -90,7 +90,28 @@ func addSlot(port_location: StrategySlot.PortLocation) -> StrategySlot:
 ##     then if a group is picked, the slot expression will calculate fitness.
 ##    By default, group-expression provides 100% fitness. [br]
 ## 4. default. Could be set with a fixed fitness value. [br]
-func evaluate(env: AMUGGameEnv) -> MusicEdge:
-    var next_edge: MusicEdge = null
+func evaluate(env: AMUGGameEnv) -> int:
+    # TODO Not completed.
+    var next_edge__id: int = -1
 
-    return next_edge
+    # 1. See if there are area change slots.
+    var area_change_slots: Array[StrategySlot] = self.strategy_slots.filter(
+        func(s: StrategySlot): return s.type == StrategySlot.EvalType.area_change
+    )
+    for slot in area_change_slots:
+        if slot.area_change__target == env.current_area:
+            return slot.to_edge
+
+    # 2. See if there are status change slots.
+    var status_change_slots = self.strategy_slots.filter(
+        func(s: StrategySlot): return s.type == StrategySlot.EvalType.status_change
+    )
+
+    # 4. See if there is "otherwise" (default) slot.
+    var otherwise_slots: Array[StrategySlot] = self.strategy_slots.filter(
+        func(s: StrategySlot): return s.type == StrategySlot.EvalType.default
+    )
+    if otherwise_slots.size() == 1:
+        return otherwise_slots[0].to_edge
+
+    return next_edge__id
