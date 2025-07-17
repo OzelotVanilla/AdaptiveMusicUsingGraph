@@ -183,6 +183,8 @@ func processPlayLoop(delta: float):
 #endregion
 
 func __onReady__():
+    self.name = "SoundPlayManager"
+
     if self.is_runtime:
         self.__runtime__sound_player = AudioStreamPlayer.new()
         self.add_child(self.__runtime__sound_player)
