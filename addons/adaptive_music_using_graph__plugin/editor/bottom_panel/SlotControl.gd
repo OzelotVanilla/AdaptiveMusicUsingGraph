@@ -2,7 +2,7 @@
 class_name SlotControl
 extends VBoxContainer
 
-var slot__stored: StrategySlot
+var slot__ref: StrategySlot
 
 var title: LineEdit:
     get: return $Title
@@ -22,14 +22,14 @@ func _ready() -> void: return self.__onReady__()
 func _init(slot: StrategySlot = null) -> void:
     # Data.
     if slot != null:
-        self.slot__stored = slot
+        self.slot__ref = slot
 
     # UI.
     self.loadUIFromStorage(slot) # If possible.
 
 ## Must be called to init the slot information and UI logic.
 func init(slot: StrategySlot) -> void:
-    self.slot__stored = slot
+    self.slot__ref = slot
     self.initTitleLineEdit()
     self.initEvalTypeDropdown()
     self.loadUIFromStorage()
@@ -52,7 +52,7 @@ var dropdown_options__eval_type: Array[StrategySlot.EvalType]:
 ## Note: For every data-changing action, may better follow with a UI-reload.
 func initTitleLineEdit():
     # But for global input, not being able to change.
-    if self.slot__stored.type == StrategySlot.EvalType.global_input:
+    if self.slot__ref.type == StrategySlot.EvalType.global_input:
         self.title.tooltip_text = "Global Input cannot be renamed."
     else:
         self.title.tooltip_text = "Double-Click to change name."
@@ -70,17 +70,17 @@ func initTitleLineEdit():
             func():
                 self.title.editable = false
                 # Prevent setting default text to title.
-                if self.slot__stored.title != self.title.text:
-                    self.slot__stored.title = self.title.text
+                if self.slot__ref.title != self.title.text:
+                    self.slot__ref.title = self.title.text
                 self.loadUIFromStorage.call_deferred()
         )
         self.title.connect(
             "text_submitted",
             func(new_text: String):
-                self.slot__stored.title = self.title.text
+                self.slot__ref.title = self.title.text
                 # Prevent setting default text to title.
-                if self.slot__stored.title != self.title.text:
-                    self.slot__stored.title = self.title.text
+                if self.slot__ref.title != self.title.text:
+                    self.slot__ref.title = self.title.text
                 self.loadUIFromStorage.call_deferred()
         )
 
@@ -89,9 +89,9 @@ func initEvalTypeDropdown():
     dropdown.clear()
 
     # If it is global-input, then, cannot change.
-    if     self.slot__stored.type == StrategySlot.EvalType.global_input \
-      or   self.slot__stored.type == StrategySlot.EvalType.through:
-        var type = self.slot__stored.type
+    if     self.slot__ref.type == StrategySlot.EvalType.global_input \
+      or   self.slot__ref.type == StrategySlot.EvalType.through:
+        var type = self.slot__ref.type
         dropdown.add_item(StrategySlot.getTypeReadable(type), type)
         dropdown.select(0)
         dropdown.disabled = true
@@ -107,30 +107,30 @@ func initEvalTypeDropdown():
         dropdown.connect(
             "item_selected",
             func(index: int):
-                self.slot__stored.type = dropdown.get_item_id(index)
+                self.slot__ref.type = dropdown.get_item_id(index)
                 # If the title is not set yet, need to update title text.
                 self.loadUIFromStorage.call_deferred()
         )
 #endregion
 
 ## Try load from the UI info.
-## Abort when [code]self.slot__stored[/code] is null.[br]
-## Can reset the [code]self.slot__stored[/code] by param [param slot].
+## Abort when [code]self.slot__ref[/code] is null.[br]
+## Can reset the [code]self.slot__ref[/code] by param [param slot].
 func loadUIFromStorage(slot: StrategySlot = null):
     # Try set and Try load.
-    if slot != null: self.slot__stored = slot
-    if self.slot__stored == null: return
+    if slot != null: self.slot__ref = slot
+    if self.slot__ref == null: return
 
     # Load.
-    self.title.text = self.slot__stored.title
-    self.eval_type_dropdown.select(self.eval_type_dropdown.get_item_index(self.slot__stored.type))
+    self.title.text = self.slot__ref.title
+    self.eval_type_dropdown.select(self.eval_type_dropdown.get_item_index(self.slot__ref.type))
     self.loadSpecificPanel()
 
 
 #region Generation of slot-specific control panel (UI reload).
 ## Loading of slot-specific control panel.
 func loadSpecificPanel():
-    match self.slot__stored.type:
+    match self.slot__ref.type:
         StrategySlot.EvalType.none: self.loadSlotPanel__None()
         StrategySlot.EvalType.area_change: self.loadSlotPanel__Area()
         StrategySlot.EvalType.status_change: self.loadSlotPanel__Status()

@@ -11,21 +11,17 @@ signal slot_changed(slot: StrategySlot)
 
 enum PortLocation
 {
+    ## Has only left port.
     left,
+    ## Has only right port.
     right,
+    ## Has both left/right port.
     both
 }
 
 ## The evaluation type of the slot.[br][br]
 ##
-## For the in-path connected into main input, the precedence of the evaluation is:[br]
-## 1. area_change. If match, produce 100% fitness. [br]
-## 2. status_change. If match, produce 100% fitness. [br]
-## 3. expression_group.
-##    Groups will generate fitness by group-expression first,
-##     then if a group is picked, the slot expression will calculate fitness.
-##    By default, group-expression provides 100% fitness. [br]
-## 4. default. Could be set with a fixed fitness value. [br]
+## See [method MusicNode.evaluate] for the order of slot evaluation.
 enum EvalType
 {
     ## EvalType is not-set-yet.

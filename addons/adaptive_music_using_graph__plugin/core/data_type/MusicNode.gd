@@ -78,9 +78,18 @@ func addSlot(port_location: StrategySlot.PortLocation) -> StrategySlot:
     self.strategy_slots.append(result)
     return result
 
-## Evaluate according to the runtime param.[br][br]
+## Evaluate according to the runtime param.
+## [code]null[/code] means no available node next.[br][br]
 ##
-## [code]null[/code] means no available node next.
+## For the in-path connected into main input, the precedence of the evaluation is:[br][br]
+##
+## 1. area_change. If match, produce 100% fitness. [br]
+## 2. status_change. If match, produce 100% fitness. [br]
+## 3. expression_group.
+##    Groups will generate fitness by group-expression first,
+##     then if a group is picked, the slot expression will calculate fitness.
+##    By default, group-expression provides 100% fitness. [br]
+## 4. default. Could be set with a fixed fitness value. [br]
 func evaluate(env: AMUGGameEnv) -> MusicEdge:
     var next_edge: MusicEdge = null
 
