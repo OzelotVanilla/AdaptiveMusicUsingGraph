@@ -5,6 +5,8 @@ This is an under-developing Adaptive Music Godot Plugin.
 It utilise the graph-node representation on music segment,
 and allows users to set multiple strategy for horizontal layering.
 
+![Example of Plugin](readme_files/plugin_example_pic.png)
+
 ## Declaration
 
 This plugin does not directly use AI generated code.
